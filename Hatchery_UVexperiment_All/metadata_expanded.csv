@@ -1,0 +1,76 @@
+File,Sample0,Sample,Date,Group,Initials,Tank,Brood#,Tube#,Primer set,Notes,Project,ReadDir,Run,Type,Info1,Info2,InfoUV,DayN
+C4_S24_L001_R1_001.fastq.gz,C4,C4,C4,Hatchery,H20,H20,H20,H20,N719 / S511,NA,Hatchery,1,1,NegativeDNA,Ctrl,PCR,,NA
+C5_S48_L001_R1_001.fastq.gz,C5,C5,C5,Hatchery,H20,H20,H20,H20,N712 / S517,NA,Hatchery,1,1,NegativeDNA,Ctrl,PCR,,NA
+C6_S71_L001_R1_001.fastq.gz,C6,C6,C6,Hatchery,H20,H20,H20,H20,N716 / S516,NA,Hatchery,1,1,NegativeDNA,Ctrl,PCR,,NA
+H_E_S74_L001_R1_001.fastq.gz,H_E,H_E,Even,NA,NA,NA,NA,NA,N706 / S515,NA,All,1,1,Sample,PosCtrl,NA,,NA
+H_GD_S73_L001_R1_001.fastq.gz,H_GD,H_GD,Generous donor,NA,NA,NA,NA,NA,N706 / S513,NA,All,1,1,Sample,PosCtrl,NA,,NA
+H_NC_S72_L001_R1_001.fastq.gz,H_NC,H_NC,"H2O, negative PCR control",NA,NA,NA,NA,NA,N716 / S517,NA,All,1,1,NegativePCR,PosCtrl,NA,,NA
+H_S_S75_L001_R1_001.fastq.gz,H_S,H_S,Staggered,NA,NA,NA,NA,NA,N706 / S516,NA,All,1,1,Sample,PosCtrl,NA,,NA
+H12_S1_L001_R1_001.fastq.gz,H12,H12,44298,Hatchery,SA,2,21-05,0012,N716 / S502,NA,Hatchery,1,1,Sample,UV,Main,Control,5
+H138_S17_L001_R1_001.fastq.gz,H138,H138,44368,Hatchery,MH,5,21-38,0138,N719 / S502,NA,Hatchery,1,1,Sample,Good,Best,,4
+H141_S18_L001_R1_001.fastq.gz,H141,H141,44371,Hatchery,HD,6,21-38,0141,N719 / S503,NA,Hatchery,1,1,Sample,Good,Best,,7
+H144_S19_L001_R1_001.fastq.gz,H144,H144,44375,Hatchery,MH,7,21-38,0144,N719 / S505,21-38,Hatchery,1,1,Sample,Good,Best,,11
+H148_S20_L001_R1_001.fastq.gz,H148,H148,44376,Hatchery,MH,8,21-43,0148,N719 / S506,NA,Hatchery,1,1,Sample,Good,Best,,4
+H15_S2_L001_R1_001.fastq.gz,H15,H15,44298,Hatchery,SA,7,21-05,0015,N716 / S503,SAME BROOD AS ULT2 BUT UV FILTERED WATER,Hatchery,1,1,Sample,UV,Main,UV,5
+H152_S21_L001_R1_001.fastq.gz,H152,H152,44379,Hatchery,LD,7,21-43,0152,N719 / S507,NA,Hatchery,1,1,Sample,Good,Best,,7
+H158_S22_L001_R1_001.fastq.gz,H158,H158,44383,Hatchery,MH,8,21-43,0158,N719 / S508,NA,Hatchery,1,1,Sample,Good,Best,,11
+H187_S23_L001_R1_001.fastq.gz,H187,H187,44403,Hatchery,JH,4,21-56,0187,N719 / S510,NA,Hatchery,1,1,Sample,Good,Ok,,7
+H192_S25_L001_R1_001.fastq.gz,H192,H192,44404,Hatchery,MH,7,21-56,0192,N720 / S502,NA,Hatchery,1,1,Sample,Good,Ok,,4
+H195_S26_L001_R1_001.fastq.gz,H195,H195,44406,Hatchery,MH,5,21-57,0195,N720 / S503,NA,Hatchery,1,1,Sample,Crash,Poor,,3
+H196_S27_L001_R1_001.fastq.gz,H196,H196,44407,Hatchery,MH,8,21-56,0196,N720 / S505,NA,Hatchery,1,1,Sample,Good,Ok,,7
+H203_S28_L001_R1_001.fastq.gz,H203,H203,44410,Hatchery,SA,2,21-57,0203,N720 / S506,NA,Hatchery,1,1,Sample,Crash,Poor,,7
+H205_S29_L001_R1_001.fastq.gz,H205,H205,44410,Hatchery,SA,7,21-58,0205,N720 / S507,NA,Hatchery,1,1,Sample,Crash,Poor,,5
+H206_S30_L001_R1_001.fastq.gz,H206,H206,44411,Hatchery,SA,5,21-59,0206,N720 / S508,NA,Hatchery,1,1,Sample,Crash,Unknown,,4
+H207_S31_L001_R1_001.fastq.gz,H207,H207,44411,Hatchery,SA,4,21-56,0207,N720 / S510,NA,Hatchery,1,1,Sample,Good,Ok,,11
+H208_S32_L001_R1_001.fastq.gz,H208,H208,44413,Hatchery,KP,1,21-58,0208,N720 / S511,NA,Hatchery,1,1,Sample,Crash,Poor,,8
+H209_S33_L001_R1_001.fastq.gz,H209,H209,44413,Hatchery,CS,3,21-57,0209,N701 / S513,NA,Hatchery,1,1,Sample,Crash,Poor,,10
+H210_S34_L001_R1_001.fastq.gz,H210,H210,44414,Hatchery,HD,6,21-59,0210,N701 / S515,NA,Hatchery,1,1,Sample,Crash,Unknown,,7
+H211_S35_L001_R1_001.fastq.gz,H211,H211,44414,Hatchery,HD,7,21-60,0211,N701 / S516,NA,Hatchery,1,1,Sample,Crash,Unknown,,3
+H212_S36_L001_R1_001.fastq.gz,H212,H212,44417,Hatchery,EG,2,21-61,0212,N701 / S517,NA,Hatchery,1,1,Sample,Crash,Unknown,,4
+H213_S37_L001_R1_001.fastq.gz,H213,H213,44417,Hatchery,EG,5,21-58,0213,N711 / S513,CRASHED,Hatchery,1,1,Sample,Crash,Poor,,8
+H219_S38_L001_R1_001.fastq.gz,H219,H219,44417,Hatchery,MH,8,21-57,0219,N711 / S515,CRASHED,Hatchery,1,1,Sample,Crash,Poor,,10
+H220_S39_L001_R1_001.fastq.gz,H220,H220,44418,Hatchery,MH,1,21-60,0220,N711 / S516,CRASHED,Hatchery,1,1,Sample,Crash,Unknown,,7
+H221_S40_L001_R1_001.fastq.gz,H221,H221,44418,Hatchery,EG,3,21-59,0221,N711 / S517,CRASHED,Hatchery,1,1,Sample,Crash,Unknown,,11
+H222_S41_L001_R1_001.fastq.gz,H222,H222,44421,Hatchery,MH,10,21-60,0222,N702 / S513,NA,Hatchery,1,1,Sample,Crash,Unknown,,10
+H223_S42_L001_R1_001.fastq.gz,H223,H223,44421,Hatchery,JH,7,21-62,0223,N702 / S515,CRASHED,Hatchery,1,1,Sample,Crash,Charcoal,,3
+H224_S43_L001_R1_001.fastq.gz,H224,H224,44424,Hatchery,MH,4,21-61,0224,N702 / S516,CRASHED,Hatchery,1,1,Sample,Crash,Unknown,,11
+H225_S44_L001_R1_001.fastq.gz,H225,H225,44424,Hatchery,MH,1,21-63,0225,N702 / S517,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,3
+H226_S45_L001_R1_001.fastq.gz,H226,H226,44425,Hatchery,WW,5,21-62,0226,N712 / S513,CRASHED,Hatchery,1,1,Sample,Crash,Charcoal,,7
+H227_S46_L001_R1_001.fastq.gz,H227,H227,44427,Hatchery,MH,10,21-63,0227,N712 / S515,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,7
+H229_S47_L001_R1_001.fastq.gz,H229,H229,44428,Hatchery,SA,9,21-62,0229,N712 / S516,"CHARCOAL WATER, CRASH",Hatchery,1,1,Sample,Crash,Charcoal,,10
+H230_S49_L001_R1_001.fastq.gz,H230,H230,44431,Hatchery,MH,2,21-65,0230,N703 / S513,CFS LOLA,Hatchery,1,1,Sample,UV,Main,Control,4
+H236_S50_L001_R1_001.fastq.gz,H236,H236,44431,Hatchery,MH,8,21-65,0236,N703 / S515,UV LOLA,Hatchery,1,1,Sample,UV,Main,UV,4
+H237_S51_L001_R1_001.fastq.gz,H237,H237,44431,Hatchery,MH,C11,21-63,0237,N703 / S516,"CRASH, VICTROCILILA",Hatchery,1,1,Sample,Crash,NoSurvivors,,11
+H242_S52_L001_R1_001.fastq.gz,H242,H242,44438,Hatchery,MH,1,21-68,0242,N703 / S517,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,4
+H255_S53_L001_R1_001.fastq.gz,H255,H255,44442,Hatchery,SA,8,21-68,0255,N714 / S513,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,8
+H256_S54_L001_R1_001.fastq.gz,H256,H256,44446,Hatchery,MH,1,21-70,0256,N714 / S515,NA,Hatchery,1,1,Sample,Good,Best,,5
+H259_S55_L001_R1_001.fastq.gz,H259,H259,44446,Hatchery,MH,7,21-68,0259,N714 / S516,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,12
+H300_S56_L001_R1_001.fastq.gz,H300,H300,44449,Hatchery,MH,8,21-70,0300,N714 / S517,NA,Hatchery,1,1,Sample,Good,Best,,8
+H303_S57_L001_R1_001.fastq.gz,H303,H303,44452,Hatchery,MH,6,21-70,0303,N704 / S513,NA,Hatchery,1,1,Sample,Good,Best,,11
+H31_S3_L001_R1_001.fastq.gz,H31,H31,44308,Hatchery,MH,6,21-10,0031,N716 / S505,NA,Hatchery,1,1,Sample,Good,Best,,3
+H34_S4_L001_R1_001.fastq.gz,H34,H34,44312,Hatchery,SA,1,21-11,0034,N716 / S506,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,5
+H35_S5_L001_R1_001.fastq.gz,H35,H35,44312,Hatchery,MH,2,21-10,0035,N716 / S507,NA,Hatchery,1,1,Sample,Good,Best,,7
+H40_S6_L001_R1_001.fastq.gz,H40,H40,44315,Hatchery,MH,1,21-10,0040,N716 / S508,NA,Hatchery,1,1,Sample,Good,Best,,10
+H41_S7_L001_R1_001.fastq.gz,H41,H41,44315,Hatchery,MH,3,21-11,0041,N716 / S510,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,8
+H46_S8_L001_R1_001.fastq.gz,H46,H46,44319,Hatchery,SA,3,21-10,0046,N716 / S511,NA,Hatchery,1,1,Sample,Good,Best,,14
+H48_S9_L001_R1_001.fastq.gz,H48,H48,44319,Hatchery,SWS,8,21-11,0048,N718 / S502,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,12
+H57_S10_L001_R1_001.fastq.gz,H57,H57,44324,Hatchery,SA,11,21-11,0057,N718 / S503,"CRASH? BOTTOM OF TANK SAMPLE, MOST DEAD ON BOTTOM OF TANK",Hatchery,1,1,Sample,Crash,NoSurvivors,,17
+H58_S11_L001_R1_001.fastq.gz,H58,H58,44324,Hatchery,SA,11,21-11,0058,N718 / S505,CRASH? LARVAE STILL SWIMMING IN CULTURE SAMPLE,Hatchery,1,1,Sample,Crash,NoSurvivors,,17
+H63_S12_L001_R1_001.fastq.gz,H63,H63,44326,Hatchery,SA,C11,21-11,0063,N718 / S506,LARVAE FROM CRACH ON SATURDAY 5/8,Hatchery,1,1,Sample,Crash,NoSurvivors,,19
+H66_S13_L001_R1_001.fastq.gz,H66,H66,44328,Hatchery,MH,C11,21-11,0066,N718 / S507,LARVAE FROM SATURDAY CRASH 5/8,Hatchery,1,1,Sample,Crash,NoSurvivors,,21
+H83_S14_L001_R1_001.fastq.gz,H83,H83,44336,Hatchery,MH,6,21-23,0083,N718 / S508,NA,Hatchery,1,1,Sample,Good,Ok,,3
+H91_S15_L001_R1_001.fastq.gz,H91,H91,44340,Hatchery,MH,5,21-23,0091,N718 / S510,NA,Hatchery,1,1,Sample,Good,Ok,,7
+H94_S16_L001_R1_001.fastq.gz,H94,H94,44344,Hatchery,MH,2,21-23,0094,N718 / S511,NA,Hatchery,1,1,Sample,Good,Ok,,11
+XA_S58_L001_R1_001.fastq.gz,XA,A,44390,UV experiment,JAC,HPLOH-UV,UV C,A,N704 / S515,NA,UVexperiment,1,1,Sample,UV,Exp,UV,1
+XB_S59_L001_R1_001.fastq.gz,XB,B,44390,UV experiment,JAC,HPLOH-UV,UV B,B,N704 / S516,NA,UVexperiment,1,1,Sample,UV,Exp,UV,1
+XC_S60_L001_R1_001.fastq.gz,XC,C,44390,UV experiment,JAC,HPLOH-UV,UV A,C,N704 / S517,NA,UVexperiment,1,1,Sample,UV,Exp,UV,1
+XD_S61_L001_R1_001.fastq.gz,XD,D,44390,UV experiment,JAC,HPLOH-UV,Ctrl C,D,N715 / S513,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,1
+XE_S62_L001_R1_001.fastq.gz,XE,E,44390,UV experiment,JAC,HPLOH-UV,Ctrl B,E,N715 / S515,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,1
+XF_S63_L001_R1_001.fastq.gz,XF,F,44390,UV experiment,JAC,HPLOH-UV,Ctrl A,F,N715 / S516,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,1
+XG_S64_L001_R1_001.fastq.gz,XG,G,44392,UV experiment,JAC,HPLOH-UV,UV C,G,N715 / S517,NA,UVexperiment,1,1,Sample,UV,Exp,UV,3
+XH_S65_L001_R1_001.fastq.gz,XH,H,44392,UV experiment,JAC,HPLOH-UV,UV B,H,N705 / S513,NA,UVexperiment,1,1,Sample,UV,Exp,UV,3
+XI_S66_L001_R1_001.fastq.gz,XI,I,44392,UV experiment,JAC,HPLOH-UV,UV A,I,N705 / S515,NA,UVexperiment,1,1,Sample,UV,Exp,UV,3
+XJ_S67_L001_R1_001.fastq.gz,XJ,J,44392,UV experiment,JAC,HPLOH-UV,Ctrl C,J,N705 / S516,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,3
+XK_S68_L001_R1_001.fastq.gz,XK,K,44392,UV experiment,JAC,HPLOH-UV,Ctrl B,K,N705 / S517,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,3
+XL_S69_L001_R1_001.fastq.gz,XL,L,44392,UV experiment,JAC,HPLOH-UV,Ctrl A,L,N716 / S513,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,3
+XM_S70_L001_R1_001.fastq.gz,XM,M,44389,UV experiment,JAC,HPLOH-UV,Ctrl A,M,N716 / S515,NA,UVexperiment,1,1,Sample,UV,Exp,Ctrl,0

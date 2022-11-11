@@ -1,0 +1,167 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Lets just try to get an idea of what communtiy structure does over time.
+
+```{r}
+source("Initial_Processing.R")
+```
+
+```{r}
+hatch %>% group_taxa(Phylum)
+```
+
+```{r fig.width = 5, fig.height = 2}
+hatch %>%
+  group_taxa(Kingdom) %>%
+  #keep_common(fraction = .3, minhits = 5) %>%
+  filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 10^-4), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Kingdom, nrow = 1) +
+  labs(x = "Day", y = "log10(o/h)") + theme_bw()
+```
+
+```{r}
+hatch %>%
+  group_taxa(Phylum) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Kingdom == "Eukaryota") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Phylum) +
+  labs(x = "Day") + theme_bw()
+```
+```{r}
+hatch %>%
+  group_taxa(Phylum) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Unknown = "Poor")) %>%
+  filter(Kingdom == "Eukaryota") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Phylum) +
+  labs(x = "Day") + theme_bw()
+```
+
+```{r}
+hatch %>%
+  group_taxa(Phylum) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Unknown = "Poor")) %>%
+  filter(Kingdom == "Eukaryota") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() +
+  geom_path() +
+  scale_color_manual(values = c(Best = "black", Ok = "darkblue", Poor = "orange", NoSurvivors =  "red"))
+  #scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Phylum) +
+  labs(x = "Day") + theme_bw()
+```
+
+
+```{r}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Phylum == "Platyhelminthes") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c(Best = "black", Ok = "darkblue", Poor = "orange", NoSurvivors =  "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Tag_ASV) +
+  labs(x = "Day") + theme_bw()
+```
+
+```{r}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Kingdom == "Eukaryota") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Tag_ASV) +
+  labs(x = "Day") + theme_bw()
+```
+
+
+There seem to be more than one measurment per day for the "poor"? Is that UV treatment?
+Again, what are the charcoal and unknown.
+
+
+```{r fig.height = 2, fig.width = 5}
+hatch %>%
+  group_taxa(Phylum) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Unknown = "Poor")) %>%
+  filter(Kingdom == "Bacteria") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Phylum) +
+  labs(x = "Day") + theme_bw()
+```
+```{r fig.height = 2, fig.width = 5}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Phylum == "Proteobacteria") %>% 
+  filter(Family != "Mitochondria") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
+  labs(x = "Day") + theme_bw()
+```
+
+```{r fig.height = 2, fig.width = 5}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Phylum == "Bacteroidetes") %>% 
+  filter(Family != "Mitochondria") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
+  labs(x = "Day") + theme_bw()
+```
+
+```{r}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Phylum == "Bacteroidetes") %>% 
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Tag_ASV) +
+  labs(x = "Day") + theme_bw()
+```
+
+```{r}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Phylum == "Cyanobacteria") %>% 
+  #filter(Family != "Mitochondria") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Tag_ASV) +
+  labs(x = "Day") + theme_bw()
+```

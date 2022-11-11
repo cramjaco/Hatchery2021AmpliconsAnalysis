@@ -61,16 +61,16 @@ H66_S13_L001_R1_001.fastq.gz,H66,H66,44328,Hatchery,MH,C11,21-11,0066,21,N718 / 
 H83_S14_L001_R1_001.fastq.gz,H83,H83,44336,Hatchery,MH,6,21-23,0083,3,N718 / S508,NA,Hatchery,1,1,Sample
 H91_S15_L001_R1_001.fastq.gz,H91,H91,44340,Hatchery,MH,5,21-23,0091,7,N718 / S510,NA,Hatchery,1,1,Sample
 H94_S16_L001_R1_001.fastq.gz,H94,H94,44344,Hatchery,MH,2,21-23,0094,11,N718 / S511,NA,Hatchery,1,1,Sample
-XA_S58_L001_R1_001.fastq.gz,XA,A,44390,UV experiment,JAC,HPLOH-UV,UV C,A,1,N704 / S515,NA,UV experiment,1,1,Sample
-XB_S59_L001_R1_001.fastq.gz,XB,B,44390,UV experiment,JAC,HPLOH-UV,UV B,B,1,N704 / S516,NA,UV experiment,1,1,Sample
-XC_S60_L001_R1_001.fastq.gz,XC,C,44390,UV experiment,JAC,HPLOH-UV,UV A,C,1,N704 / S517,NA,UV experiment,1,1,Sample
-XD_S61_L001_R1_001.fastq.gz,XD,D,44390,UV experiment,JAC,HPLOH-UV,Ctrl C,D,1,N715 / S513,NA,UV experiment,1,1,Sample
-XE_S62_L001_R1_001.fastq.gz,XE,E,44390,UV experiment,JAC,HPLOH-UV,Ctrl B,E,1,N715 / S515,NA,UV experiment,1,1,Sample
-XF_S63_L001_R1_001.fastq.gz,XF,F,44390,UV experiment,JAC,HPLOH-UV,Ctrl A,F,1,N715 / S516,NA,UV experiment,1,1,Sample
-XG_S64_L001_R1_001.fastq.gz,XG,G,44392,UV experiment,JAC,HPLOH-UV,UV C,G,3,N715 / S517,NA,UV experiment,1,1,Sample
-XH_S65_L001_R1_001.fastq.gz,XH,H,44392,UV experiment,JAC,HPLOH-UV,UV B,H,3,N705 / S513,NA,UV experiment,1,1,Sample
-XI_S66_L001_R1_001.fastq.gz,XI,I,44392,UV experiment,JAC,HPLOH-UV,UV A,I,3,N705 / S515,NA,UV experiment,1,1,Sample
-XJ_S67_L001_R1_001.fastq.gz,XJ,J,44392,UV experiment,JAC,HPLOH-UV,Ctrl C,J,3,N705 / S516,NA,UV experiment,1,1,Sample
-XK_S68_L001_R1_001.fastq.gz,XK,K,44392,UV experiment,JAC,HPLOH-UV,Ctrl B,K,3,N705 / S517,NA,UV experiment,1,1,Sample
-XL_S69_L001_R1_001.fastq.gz,XL,L,44392,UV experiment,JAC,HPLOH-UV,Ctrl A,L,3,N716 / S513,NA,UV experiment,1,1,Sample
-XM_S70_L001_R1_001.fastq.gz,XM,M,44389,UV experiment,JAC,HPLOH-UV,Ctrl A,M,0,N716 / S515,NA,UV experiment,1,1,Sample
+XA_S58_L001_R1_001.fastq.gz,XA,A,44390,UV experiment,JAC,HPLOH-UV,UV C,A,1,N704 / S515,NA,UVexperiment,1,1,Sample
+XB_S59_L001_R1_001.fastq.gz,XB,B,44390,UV experiment,JAC,HPLOH-UV,UV B,B,1,N704 / S516,NA,UVexperiment,1,1,Sample
+XC_S60_L001_R1_001.fastq.gz,XC,C,44390,UV experiment,JAC,HPLOH-UV,UV A,C,1,N704 / S517,NA,UVexperiment,1,1,Sample
+XD_S61_L001_R1_001.fastq.gz,XD,D,44390,UV experiment,JAC,HPLOH-UV,Ctrl C,D,1,N715 / S513,NA,UVexperiment,1,1,Sample
+XE_S62_L001_R1_001.fastq.gz,XE,E,44390,UV experiment,JAC,HPLOH-UV,Ctrl B,E,1,N715 / S515,NA,UVexperiment,1,1,Sample
+XF_S63_L001_R1_001.fastq.gz,XF,F,44390,UV experiment,JAC,HPLOH-UV,Ctrl A,F,1,N715 / S516,NA,UVexperiment,1,1,Sample
+XG_S64_L001_R1_001.fastq.gz,XG,G,44392,UV experiment,JAC,HPLOH-UV,UV C,G,3,N715 / S517,NA,UVexperiment,1,1,Sample
+XH_S65_L001_R1_001.fastq.gz,XH,H,44392,UV experiment,JAC,HPLOH-UV,UV B,H,3,N705 / S513,NA,UVexperiment,1,1,Sample
+XI_S66_L001_R1_001.fastq.gz,XI,I,44392,UV experiment,JAC,HPLOH-UV,UV A,I,3,N705 / S515,NA,UVexperiment,1,1,Sample
+XJ_S67_L001_R1_001.fastq.gz,XJ,J,44392,UV experiment,JAC,HPLOH-UV,Ctrl C,J,3,N705 / S516,NA,UVexperiment,1,1,Sample
+XK_S68_L001_R1_001.fastq.gz,XK,K,44392,UV experiment,JAC,HPLOH-UV,Ctrl B,K,3,N705 / S517,NA,UVexperiment,1,1,Sample
+XL_S69_L001_R1_001.fastq.gz,XL,L,44392,UV experiment,JAC,HPLOH-UV,Ctrl A,L,3,N716 / S513,NA,UVexperiment,1,1,Sample
+XM_S70_L001_R1_001.fastq.gz,XM,M,44389,UV experiment,JAC,HPLOH-UV,Ctrl A,M,0,N716 / S515,NA,UVexperiment,1,1,Sample

@@ -1,0 +1,130 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+101.5
+This is a bit p-hacky, but also prescedented by my Nyvac study. I want to run a logistic regression on every taxon, at every taxonomic level, to find some exemplars of things
+that seem to relate to crashes. (adjusting vor multiple comparasons)
+
+I'd like to see if any of those "predictive" (positive sign) bugs increase in abundance as the crash progresses.
+
+```{r}
+source("Initial_Processing.R")
+library(purrr)
+library(broom)
+```
+
+```{r}
+test_asv <- early %>% filter(ASV == "ASV_4") %>%
+  mutate(isCrash = Info1 == "Crash")
+ggplot(data = test_asv, aes(x = log10(ratio), y = Info1)) + geom_point()
+test_mod <- glm(isCrash ~ log10(ratio), data = test_asv, family = "binomial")
+summary(test_mod)
+```
+
+
+```{r}
+my_logistic_glm <- function(df){glm(isCrash ~ log10(ratio), data = df, family = "binomial")}
+quiet_logistic_glm <- quietly(my_logistic_glm)
+
+asv_models <- early %>% 
+  mutate(isCrash = Info1 == "Crash") %>%
+  group_by(ASV) %>%
+  nest() %>%
+  mutate(modLs = map(data, quiet_logistic_glm)) %>%
+  mutate(mod = map(modLs, ~.[["result"]]),
+         warn = map(modLs, ~.[["warnings"]]), # map_chr cant handle zero length vectors
+         tid = map(mod, tidy)
+         ) %>%
+  identity()
+```
+
+```{r}
+asv_model_data <- asv_models %>%
+  select(ASV, tid) %>%
+  unnest(tid) %>%
+  filter(term != "(Intercept)")
+
+asv_model_ok <- asv_model_data %>%
+  filter(`p.value` < 0.05)
+```
+Hah! Nothing comes close to predicting crashes.
+
+# What about after the crashes
+
+```{r}
+many_logistic <- function(fort){
+  asv_models <- fort %>% 
+  mutate(isCrash = Info1 == "Crash") %>%
+  group_by(ASV) %>%
+  nest() %>%
+  mutate(modLs = map(data, quiet_logistic_glm)) %>%
+  mutate(mod = map(modLs, ~.[["result"]]),
+         warn = map(modLs, ~.[["warnings"]]), # map_chr cant handle zero length vectors
+         tid = map(mod, tidy)
+         ) %>%
+  identity()
+  
+  asv_model_data <- asv_models %>%
+  select(ASV, tid) %>%
+  unnest(tid) %>%
+  filter(term != "(Intercept)")
+}
+```
+
+```{r}
+asv_model_data_01 <- many_logistic(early)
+```
+
+```{r}
+asv_model_data_mid <- many_logistic(mid)
+asv_model_data_mid_ok <- asv_model_data_mid %>% filter(p.value < 0.05)
+```
+
+Also nothing. Huh.
+
+# What about by different taxonomic levels
+
+```{r}
+taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+glomThing <- tibble(taxLevel = taxLevels) %>%
+  mutate(data1 = map(taxLevel, ~group_taxa_2(early, .)))
+```
+
+```{r}
+glomThing_2 <- glomThing %>% 
+  mutate(data2 = map(data1, many_logistic)) %>%
+  unnest(data2) %>%
+  select(-data1)
+```
+
+Ok this is silly, everything is named by the first asv in the group still, but should still work-ish
+
+```{r}
+glomThing_2 %>% filter(p.value < 0.05)
+```
+Love it.
+
+# And mid?
+
+```{r}
+taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+glomThing <- tibble(taxLevel = taxLevels) %>%
+  mutate(data1 = map(taxLevel, ~group_taxa_2(mid, .)))
+```
+
+```{r}
+glomThing_2 <- glomThing %>% 
+  mutate(data2 = map(data1, many_logistic)) %>%
+  unnest(data2) %>%
+  select(-data1)
+```
+
+Ok this is silly, everything is named by the first asv in the group still, but should still work-ish
+
+```{r}
+glomThing_2 %>% filter(p.value < 0.05)
+```
+
+Ok. Can't even p-hack my way out of this non-finding.
