@@ -1,0 +1,285 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+So I think the first time-point isn't actually correlated with survival after all. I may have been mistreding my statistics output.
+In any case I'd like to show how the microbiota do vary over the life of a crash.
+
+```{r}
+library(ggvegan)
+library(plotly)
+library(purrr)
+library(broom)
+library(flextable)
+source("Initial_Processing.R")
+```
+
+## Canonical correspondence analysis.
+Overall patterns in community structure over the life time of things.
+
+```{r}
+#first_cca <- cca(sqrt(ratioDf) ~ DayN + Info1, data = metadata_main )
+first_cca <- cca(sqrt(ratioDf) ~ DayN + Info1, data = metadata_main )
+set.seed(33100)
+anova(first_cca, by = "margin")
+plot(first_cca)
+```
+Ok. Lets look at how the samples evolve over time on the above plot
+
+
+
+```{r}
+first_cca_wa <- fortify(first_cca, display = "wa") %>% left_join(metadata_main, by = c("Label" = "Sample0")) %>%
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat)))
+
+
+early_days <- first_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
+late_days <- first_cca_wa %>% filter(DayN >= 14)
+plt1 <- early_days %>% 
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = first_cca_wa, inherit.aes = FALSE) +
+  geom_point(size = 3, stroke = 1.5) + 
+  scale_shape_manual(values = c(21, 22, 23, 1, 1, 1, 1)) +
+  #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
+  scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  #scale_color_manual(values = c(Good = "black", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
+  geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
+  geom_text(data = first_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good") %>% mutate(Label = str_remove(Label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 3.4, y = CCA2 * 3.4, label = Label), size = 5) +
+  geom_segment(data = first_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 3.2, yend = CCA2 * 3.2), color = "brown4",
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(data = first_cca %>% fortify(display = "cn") %>% mutate(Label = str_remove(Label, "Info1")), inherit.aes = FALSE, aes(x = CCA1, y = CCA2, label = Label), alpha = 0.5, size = 5) +
+  theme_bw(base_size = 16)
+plt1
+```
+
+
+# As above, but dropping the days after day 12
+
+```{r}
+metadata_limited <- metadata_main %>% filter(DayN < 14)
+ratioDf_limited <- ratioDf[rownames(ratioDf) %in% metadata_limited$Sample0,]
+second_cca <- cca(sqrt(ratioDf_limited) ~ DayN + Info1, data = metadata_limited)
+anova(second_cca, by = "margin")
+```
+```{r}
+Info2_Levels <- c("Best", "Ok", "Poor", "NoSurvivors")
+```
+
+
+```{r}
+second_cca_wa <- fortify(second_cca, display = "wa") %>% 
+  left_join(metadata_main, by = c("Label" = "Sample0")) %>% 
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat))) %>%
+  identity()
+
+early_days <- second_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
+late_days <- second_cca_wa %>% filter(DayN >= 14)
+plt2 <- early_days %>% 
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = second_cca_wa, inherit.aes = FALSE) +
+  geom_point(size = 3, stroke = 1.5) + 
+  scale_shape_manual(values = c(1, 2, 7, 1, 1, 1, 1)) +
+  #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
+  #scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  #scale_color_manual(values = c(Good = "black", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
+  geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
+  geom_text(data = second_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good") %>% mutate(Label = str_remove(Label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 2.4, y = CCA2 * 2.4, label = Label), size = 5) +
+  geom_segment(data = second_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 2.2, yend = CCA2 * 2.2), color = "blue",
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(data = second_cca %>% fortify(display = "cn") %>% mutate(Label = str_remove(Label, "Info1")), inherit.aes = FALSE, aes(x = CCA1, y = CCA2, label = Label), alpha = 0.5, size = 4) +
+  theme_bw(base_size = 16)
+plt2
+```
+
+
+
+
+# Check each day
+
+```{r}
+dayCatLev <- c("3-5", "7-8", "10-12")
+smaller_ccas <- metadata_main %>%
+  filter(DayCat %in% dayCatLev) %>%
+  group_by(DayCat) %>%
+  nest() %>%
+  mutate(rdf = map(data, ~ratioDf[rownames(ratioDf) %in% .$Sample0,])) %>%
+  mutate(mod = map2(.x = data, .y = rdf, ~cca(sqrt(.y) ~  Info1, data = .x))) %>%
+  mutate(anova = map(mod, anova)) %>%
+  mutate(anova_table = map(anova, tidy))
+
+smaller_ccas2 <- smaller_ccas %>%
+  select(DayCat, anova_table) %>%
+  unnest(anova_table)
+smaller_ccas2
+
+smaller_ccas2 %>% filter(term == "Model") %>% left_join(
+smaller_ccas2 %>% pivot_wider(id_cols = DayCat, names_from = term, values_from = ChiSquare) %>%
+  mutate(PercentChi = Model/(Model + Residual)),
+by = "DayCat"
+) %>%
+  select(-c(Model, term, df))
+```
+
+In short though, we are no effect on the pre-crash, but the community does change during the crash.
+
+
+# What about at different taxonomic levels?
+
+Problem with quasiquotation. I need to specify the level with a string, but I cant `enquo` a string and I'm kind of stuck.
+
+```{r}
+taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Tag_ASV")
+
+# group_by_taxlevel <- function(taxlevel, data = nonOyster_wm %>% filter(Info1 %in% c("Crash", "NoCrash"))){
+#   taxlevelQ <- enquo(taxlevel)
+#   data %>%
+#     group_by(Sample, `Brood#`, DayN, Type, Info1, Info2, !!taxlevelQ) %>%
+#     summarise(ratio = sum(ratio)) %>%
+#     ungroup()
+#}
+
+# was nonOyster_wm
+group_by_taxlevel <- function(taxlevel, data = nonOyster20_wm %>% filter(Info1 %in% c("Crash", "Good"))){
+  taxlevelQ <- enquo(taxlevel)
+  data %>%
+    group_by(Sample, `Brood#`, DayN, Type, Info1, Info2, "Taxid" = rlang::eval_tidy(sym(taxlevel))) %>%
+    summarise(ratio = sum(ratio), n = n()) %>%
+    ungroup()
+}
+
+testGrp <- group_by_taxlevel("Tag_ASV")
+```
+
+
+```{r}
+metabeast <- tibble(taxlevel = taxLevels) %>%
+  # group by taxonomic level
+  mutate(df = map(taxlevel, group_by_taxlevel)) %>%
+  # pivot each grouping wider
+  mutate(comm = map(df, function(x){x %>% select(Sample, Taxid, ratio) %>% pivot_wider(names_from = Taxid, values_from = ratio)})) %>%
+  mutate(comm = map(comm, ~column_to_rownames(., "Sample"))) %>%
+  identity()
+
+
+
+metabeast2 <- expand_grid(taxlevel = taxLevels, daycat = dayCatLev) %>% left_join(metabeast) %>%
+  mutate(meta = map(daycat,  ~filter(metadata_main, DayCat == .))) %>%
+  #mutate(comm2 = map2(.x = comm, .y = meta, ~.x[rownames(.x) %in% .y$Sample0,]))
+  identity()
+
+comm_subsettor <- function(comm, meta){
+   # print(comm)
+   # print(meta)
+  comm[rownames(comm) %in% meta$Sample0,]
+}
+
+comm_subsettor(metabeast2$comm[[4]], metabeast2$meta[[4]])
+
+
+metabeast3 <- metabeast2 %>%
+  mutate(comm2 = map2(.x = comm, .y = meta, ~comm_subsettor(comm = .x, meta = .y)))
+
+# on to cca
+metabeast4 <- metabeast3 %>%
+  mutate(cca = map2(.x = comm2, .y = meta, ~cca(sqrt(.x) ~ Info1, data = .y)))
+
+#Yes!
+
+metabeast5 <- metabeast4 %>%
+  mutate(anova = map(cca, ~anova(., permutations = how(nperm = 9999)))) %>%
+  mutate(tanova = map(anova, tidy))
+
+metabeast_table <- metabeast5 %>%
+  select(taxlevel, daycat, tanova) %>%
+  unnest(tanova) %>%
+  filter(term == "Model")
+  # flextable() %>%
+  # bold()
+```
+So the strange things is that the TAG_ASV isn't matching the run I did earlier.
+However, I do 
+
+To do: anova all of these and make into one table.
+
+```{r}
+metabeast_table %>%
+  mutate(daycat = ordered(daycat, levels = dayCatLev),
+         taxlevel = ordered(taxlevel, levels = taxLevels)) %>%
+  select(daycat, everything()) %>%
+  arrange(daycat, taxlevel) %>%
+  flextable() %>%
+  bold(i = ~ `p.value` < 0.05, j = "p.value") %>% merge_v(j = 1) %>%
+  theme_vanilla() %>%
+    identity()
+```
+
+I'm confused about why the 10-12 tag asv samples don't look like they do earlier in this notebook.
+
+Checking that thing are the same
+```{r}
+smaller_ccas %>% select(DayCat, rdf) %>%
+  mutate(rows = map_int(rdf, nrow), cols = map_int(rdf, ncol)) %>%
+  select(DayCat, rows, cols)
+```
+
+```{r}
+metabeast5 %>% select(taxlevel, daycat, comm2)
+```
+These are very different numbers of rows
+I think I was subsetting to present in 20 before
+Did that and now nothing is statistically significant (which does't match the earlier work).
+I'm so confused about what is going on.
+
+```{r}
+test_mb <- metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "10-12"),]$comm2[[1]]
+test_sm <- smaller_ccas[smaller_ccas$DayCat == "10-12",]$rdf[[1]]
+test_mb_meta <- metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "10-12"),]$meta[[1]]
+```
+
+these appear to be identical data frames with columns in different orders. I don't understand why the results would differ.
+My hunch is that something is going on strange over in metabeast land, and hense the nothing is significant thing.
+
+The problem may be that there is no clear join operator on the metadata. How does it know which row is which, especially if the order differs at all.
+
+Nope, order is identical
+> rownames(test_mb)
+ [1] "H144" "H158" "H207" "H209" "H219" "H221" "H222" "H224" "H229" "H237" "H259" "H303" "H40"  "H48"  "H94" 
+> test_mb_meta$Sample0
+ [1] "H144" "H158" "H207" "H209" "H219" "H221" "H222" "H224" "H229" "H237" "H259" "H303" "H40"  "H48"  "H94" 
+ 
+ > smaller_ccas[3,]$mod
+[[1]]
+Call: cca(formula = sqrt(.y) ~ Info1, data = .x)
+
+              Inertia Proportion Rank
+Total          0.8716     1.0000     
+Constrained    0.1260     0.1446    1
+Unconstrained  0.7456     0.8554   13
+Inertia is scaled Chi-square 
+
+Eigenvalues for constrained axes:
+   CCA1 
+0.12602 
+
+Eigenvalues for unconstrained axes:
+    CA1     CA2     CA3     CA4     CA5     CA6     CA7     CA8     CA9    CA10    CA11    CA12    CA13 
+0.16890 0.15594 0.10945 0.06156 0.05399 0.04816 0.03699 0.02898 0.02550 0.01819 0.01493 0.01163 0.01138 
+
+
+> metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "10-12"),]$cca[[1]]
+Call: cca(formula = .x ~ Info1, data = .y)
+
+              Inertia Proportion Rank
+Total         1.36420    1.00000     
+Constrained   0.10720    0.07858    1
+Unconstrained 1.25700    0.92142   13
+Inertia is scaled Chi-square 
+
+Eigenvalues for constrained axes:
+  CCA1 
+0.1072 
+
+I forgot to squrt transform the metabeast

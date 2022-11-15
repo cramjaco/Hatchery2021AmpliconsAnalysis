@@ -46,3 +46,47 @@ early <- hatch %>%
 mid <- hatch %>%
   filter(DayN >= 7, DayN <= 8)
 
+dayCat <- read_csv("DayCat.csv") %>%
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat)))
+
+metadata_main <- metadata %>% filter(Info1 %in% c("Good", "Crash")) %>%
+  left_join(read_csv("DayCat.csv"), by = "DayN")
+
+
+
+## Calculations from inital processing
+# Microbe to host gene ratios, in a long format table with sample info and taxonomy infomation
+nonOyster <- fortify_oyster(counts, tax)
+
+# Only the "main" data. Not the UV experiment
+nonOysterM <- nonOyster %>%
+  filter(Sample0 %in% unique(metadata_main$Sample0))
+
+# Determie in what fraction we see microbes
+nSamples <- nonOysterM$Sample0 %>% unique() %>% length()
+hitFracDf <- nonOysterM %>%
+  select(ASV, count, ratio) %>%
+  mutate(enoughHits = count>=3) %>%
+  group_by(ASV) %>%
+  summarise(hits = sum(enoughHits)) %>%
+  mutate(hitfrac = hits/nSamples) %>%
+  identity()
+
+# which bugs show up 20% of the time
+hitFracOk <- hitFracDf %>%
+  filter(hitfrac > 0.2)
+
+# just subset bacteria that show up at least 20% of the time
+# makes ordination analyses work better
+nonOyster20 <- nonOysterM %>%
+  filter(ASV %in% hitFracOk$ASV)
+
+nonOyster20_wm <-  left_join(nonOyster20, metadata, by = "Sample0")
+
+# wide format data frame for ordination
+ratioDf <- nonOyster20 %>%
+  select(Sample0, ASV, ratio) %>%
+  pivot_wider(names_from = ASV, values_from = ratio, values_fill = 0) %>%
+  column_to_rownames("Sample0") %>%
+  identity()
+

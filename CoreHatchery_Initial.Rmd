@@ -194,11 +194,13 @@ ratioDf_early <- ratioDf[rownames(ratioDf) %in% metadata_early$Sample, ]
 ```
 
 ```{r}
-early_cca <- cca((ratioDf_early) ~ Info1, data = metadata_early)
+early_cca <- cca(sqrt(ratioDf_early) ~ Info1, data = metadata_early)
 plot(early_cca)
 anova(early_cca, permutations = how(nperm = 9999))
 ```
 barely
+(what happened? My p-value seems to have gone from 0.05 to 0.6 -- was there some change? (2022 November 11))
+Or maybe I was misreading my results in the first place. I'll check old versions.
 
 ```{r}
 early_scores <- fortify(early_cca, display = "wa") %>% rename(Sample0 = Label)

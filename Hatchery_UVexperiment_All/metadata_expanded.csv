@@ -20,24 +20,24 @@ H195_S26_L001_R1_001.fastq.gz,H195,H195,44406,Hatchery,MH,5,21-57,0195,N720 / S5
 H196_S27_L001_R1_001.fastq.gz,H196,H196,44407,Hatchery,MH,8,21-56,0196,N720 / S505,NA,Hatchery,1,1,Sample,Good,Ok,,7
 H203_S28_L001_R1_001.fastq.gz,H203,H203,44410,Hatchery,SA,2,21-57,0203,N720 / S506,NA,Hatchery,1,1,Sample,Crash,Poor,,7
 H205_S29_L001_R1_001.fastq.gz,H205,H205,44410,Hatchery,SA,7,21-58,0205,N720 / S507,NA,Hatchery,1,1,Sample,Crash,Poor,,5
-H206_S30_L001_R1_001.fastq.gz,H206,H206,44411,Hatchery,SA,5,21-59,0206,N720 / S508,NA,Hatchery,1,1,Sample,Crash,Unknown,,4
+H206_S30_L001_R1_001.fastq.gz,H206,H206,44411,Hatchery,SA,5,21-59,0206,N720 / S508,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,4
 H207_S31_L001_R1_001.fastq.gz,H207,H207,44411,Hatchery,SA,4,21-56,0207,N720 / S510,NA,Hatchery,1,1,Sample,Good,Ok,,11
 H208_S32_L001_R1_001.fastq.gz,H208,H208,44413,Hatchery,KP,1,21-58,0208,N720 / S511,NA,Hatchery,1,1,Sample,Crash,Poor,,8
 H209_S33_L001_R1_001.fastq.gz,H209,H209,44413,Hatchery,CS,3,21-57,0209,N701 / S513,NA,Hatchery,1,1,Sample,Crash,Poor,,10
-H210_S34_L001_R1_001.fastq.gz,H210,H210,44414,Hatchery,HD,6,21-59,0210,N701 / S515,NA,Hatchery,1,1,Sample,Crash,Unknown,,7
-H211_S35_L001_R1_001.fastq.gz,H211,H211,44414,Hatchery,HD,7,21-60,0211,N701 / S516,NA,Hatchery,1,1,Sample,Crash,Unknown,,3
-H212_S36_L001_R1_001.fastq.gz,H212,H212,44417,Hatchery,EG,2,21-61,0212,N701 / S517,NA,Hatchery,1,1,Sample,Crash,Unknown,,4
+H210_S34_L001_R1_001.fastq.gz,H210,H210,44414,Hatchery,HD,6,21-59,0210,N701 / S515,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,7
+H211_S35_L001_R1_001.fastq.gz,H211,H211,44414,Hatchery,HD,7,21-60,0211,N701 / S516,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,3
+H212_S36_L001_R1_001.fastq.gz,H212,H212,44417,Hatchery,EG,2,21-61,0212,N701 / S517,NA,Hatchery,1,1,Sample,Crash,Poor,,4
 H213_S37_L001_R1_001.fastq.gz,H213,H213,44417,Hatchery,EG,5,21-58,0213,N711 / S513,CRASHED,Hatchery,1,1,Sample,Crash,Poor,,8
 H219_S38_L001_R1_001.fastq.gz,H219,H219,44417,Hatchery,MH,8,21-57,0219,N711 / S515,CRASHED,Hatchery,1,1,Sample,Crash,Poor,,10
-H220_S39_L001_R1_001.fastq.gz,H220,H220,44418,Hatchery,MH,1,21-60,0220,N711 / S516,CRASHED,Hatchery,1,1,Sample,Crash,Unknown,,7
-H221_S40_L001_R1_001.fastq.gz,H221,H221,44418,Hatchery,EG,3,21-59,0221,N711 / S517,CRASHED,Hatchery,1,1,Sample,Crash,Unknown,,11
-H222_S41_L001_R1_001.fastq.gz,H222,H222,44421,Hatchery,MH,10,21-60,0222,N702 / S513,NA,Hatchery,1,1,Sample,Crash,Unknown,,10
-H223_S42_L001_R1_001.fastq.gz,H223,H223,44421,Hatchery,JH,7,21-62,0223,N702 / S515,CRASHED,Hatchery,1,1,Sample,Crash,Charcoal,,3
-H224_S43_L001_R1_001.fastq.gz,H224,H224,44424,Hatchery,MH,4,21-61,0224,N702 / S516,CRASHED,Hatchery,1,1,Sample,Crash,Unknown,,11
+H220_S39_L001_R1_001.fastq.gz,H220,H220,44418,Hatchery,MH,1,21-60,0220,N711 / S516,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,7
+H221_S40_L001_R1_001.fastq.gz,H221,H221,44418,Hatchery,EG,3,21-59,0221,N711 / S517,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,11
+H222_S41_L001_R1_001.fastq.gz,H222,H222,44421,Hatchery,MH,10,21-60,0222,N702 / S513,NA,Hatchery,1,1,Sample,Crash,NoSurvivors,,10
+H223_S42_L001_R1_001.fastq.gz,H223,H223,44421,Hatchery,JH,7,21-62,0223,N702 / S515,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,3
+H224_S43_L001_R1_001.fastq.gz,H224,H224,44424,Hatchery,MH,4,21-61,0224,N702 / S516,CRASHED,Hatchery,1,1,Sample,Crash,Poor,,11
 H225_S44_L001_R1_001.fastq.gz,H225,H225,44424,Hatchery,MH,1,21-63,0225,N702 / S517,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,3
-H226_S45_L001_R1_001.fastq.gz,H226,H226,44425,Hatchery,WW,5,21-62,0226,N712 / S513,CRASHED,Hatchery,1,1,Sample,Crash,Charcoal,,7
+H226_S45_L001_R1_001.fastq.gz,H226,H226,44425,Hatchery,WW,5,21-62,0226,N712 / S513,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,7
 H227_S46_L001_R1_001.fastq.gz,H227,H227,44427,Hatchery,MH,10,21-63,0227,N712 / S515,CRASHED,Hatchery,1,1,Sample,Crash,NoSurvivors,,7
-H229_S47_L001_R1_001.fastq.gz,H229,H229,44428,Hatchery,SA,9,21-62,0229,N712 / S516,"CHARCOAL WATER, CRASH",Hatchery,1,1,Sample,Crash,Charcoal,,10
+H229_S47_L001_R1_001.fastq.gz,H229,H229,44428,Hatchery,SA,9,21-62,0229,N712 / S516,"CHARCOAL WATER, CRASH",Hatchery,1,1,Sample,Crash,NoSurvivors,,10
 H230_S49_L001_R1_001.fastq.gz,H230,H230,44431,Hatchery,MH,2,21-65,0230,N703 / S513,CFS LOLA,Hatchery,1,1,Sample,UV,Main,Control,4
 H236_S50_L001_R1_001.fastq.gz,H236,H236,44431,Hatchery,MH,8,21-65,0236,N703 / S515,UV LOLA,Hatchery,1,1,Sample,UV,Main,UV,4
 H237_S51_L001_R1_001.fastq.gz,H237,H237,44431,Hatchery,MH,C11,21-63,0237,N703 / S516,"CRASH, VICTROCILILA",Hatchery,1,1,Sample,Crash,NoSurvivors,,11

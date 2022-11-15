@@ -16,7 +16,7 @@ dataDir <- "Hatchery_UVexperiment_All"
 metadata <- read_csv(here(dataDir, paste0("metadata_", dataDir, ".csv")))
 
 ## Import brood info data
-broodInfo <- read_csv(here(dataDir, "brood_info.csv"))
+broodInfo <- read_csv(here(dataDir, "brood_info_2.csv"))
 
 # Join bood info data
 metadata01 <- metadata %>%
