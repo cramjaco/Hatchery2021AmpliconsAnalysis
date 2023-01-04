@@ -94,6 +94,41 @@ plt2 <- early_days %>%
 plt2
 ```
 
+```{r}
+
+larvae_cca_plotter_limited <- function(second_cca){
+second_cca_wa <- fortify(second_cca, display = "wa") %>% 
+  left_join(metadata_main, by = c("Label" = "Sample0")) %>% 
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat))) %>%
+  identity()
+
+
+early_days <- second_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
+late_days <- second_cca_wa %>% filter(DayN >= 14)
+plt2 <- early_days %>% 
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = second_cca_wa, inherit.aes = FALSE) +
+  geom_point(size = 3, stroke = 1.5) + 
+  scale_shape_manual(values = c(1, 2, 7, 1, 1, 1, 1)) +
+  #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
+  #scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  #scale_color_manual(values = c(Good = "black", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
+  geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
+  geom_text(data = second_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good") %>% mutate(Label = str_remove(Label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 2.4, y = CCA2 * 2.4, label = Label), size = 5) +
+  geom_segment(data = second_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 2.2, yend = CCA2 * 2.2), color = "blue",
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(data = second_cca %>% fortify(display = "cn") %>% mutate(Label = str_remove(Label, "Info1")), inherit.aes = FALSE, aes(x = CCA1, y = CCA2, label = Label), alpha = 0.5, size = 4) +
+  theme_bw(base_size = 16)
+plt2
+}
+
+larvae_cca_plotter_limited(second_cca)
+```
+
+```{r}
+ggsave(here("Figures", "CCA_Days3-12.png"), plot = plt2, height = 4, width = 6)
+```
 
 
 
@@ -141,8 +176,8 @@ taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Tag_AS
 #     ungroup()
 #}
 
-# was nonOyster_wm
-group_by_taxlevel <- function(taxlevel, data = nonOyster20_wm %>% filter(Info1 %in% c("Crash", "Good"))){
+# was nonOyster_wm # then nonOyster20_wm
+group_by_taxlevel <- function(taxlevel, data = nonOyster_wm %>% filter(Info1 %in% c("Crash", "Good"))){
   taxlevelQ <- enquo(taxlevel)
   data %>%
     group_by(Sample, `Brood#`, DayN, Type, Info1, Info2, "Taxid" = rlang::eval_tidy(sym(taxlevel))) %>%
@@ -181,10 +216,39 @@ comm_subsettor(metabeast2$comm[[4]], metabeast2$meta[[4]])
 
 metabeast3 <- metabeast2 %>%
   mutate(comm2 = map2(.x = comm, .y = meta, ~comm_subsettor(comm = .x, meta = .y)))
+```
+
+```{r}
+# make sure that a sample shows up at least n times in the sample of interest
+# lets say 20% of samples
+shows_up_enough <- function(cdf, nn = NULL, pct = NULL){
+  howoften <- apply(cdf > 0, 2, sum)
+  # cdf1 <- case_when(
+  #   (is.null(nn) & !is.null(pct)) ~  cdf[,howoften >= (dim(cdf)[1] * pct)],
+  #   (!is.null(nn) & is.null(pct)) ~  cdf[,howoften >= nn]#,
+  #   #TRUE ~ stop("either but not both of n and pct must be defined") # why is this reaching true?
+  # )
+  if(is.null(nn) & !is.null(pct)){
+    cdf1 <- cdf[,howoften >= (dim(cdf)[1] * pct)]
+  } else if(!is.null(nn) & is.null(pct)) {
+    cdf1 <- cdf[,howoften >= nn]
+  }else{
+    stop("either but not both of n and pct must be defined")
+  }
+  
+  return(cdf1)
+}
+
+metabeast3b <- metabeast3 %>%
+  mutate(comm3 = map(comm2, ~shows_up_enough(.,n = 3)))
+```
+
+
+```{r}
 
 # on to cca
-metabeast4 <- metabeast3 %>%
-  mutate(cca = map2(.x = comm2, .y = meta, ~cca(sqrt(.x) ~ Info1, data = .y)))
+metabeast4 <- metabeast3b %>%
+  mutate(cca = map2(.x = comm3, .y = meta, ~cca(sqrt(.x) ~ Info1, data = .y)))
 
 #Yes!
 
@@ -208,10 +272,12 @@ To do: anova all of these and make into one table.
 metabeast_table %>%
   mutate(daycat = ordered(daycat, levels = dayCatLev),
          taxlevel = ordered(taxlevel, levels = taxLevels)) %>%
+  mutate(FDR = p.adjust(`p.value`)) %>%
   select(daycat, everything()) %>%
   arrange(daycat, taxlevel) %>%
   flextable() %>%
   bold(i = ~ `p.value` < 0.05, j = "p.value") %>% merge_v(j = 1) %>%
+  bold(i = ~ FDR < 0.2, j = "FDR") %>%
   theme_vanilla() %>%
     identity()
 ```
@@ -234,9 +300,9 @@ Did that and now nothing is statistically significant (which does't match the ea
 I'm so confused about what is going on.
 
 ```{r}
-test_mb <- metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "10-12"),]$comm2[[1]]
-test_sm <- smaller_ccas[smaller_ccas$DayCat == "10-12",]$rdf[[1]]
-test_mb_meta <- metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "10-12"),]$meta[[1]]
+test_mb <- metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "3-5"),]$comm2[[1]]
+test_sm <- smaller_ccas[smaller_ccas$DayCat == "3-5",]$rdf[[1]]
+test_mb_meta <- metabeast5[(metabeast5$taxlevel == "Tag_ASV" & metabeast5$daycat == "3-5"),]$meta[[1]]
 ```
 
 these appear to be identical data frames with columns in different orders. I don't understand why the results would differ.
@@ -283,3 +349,115 @@ Eigenvalues for constrained axes:
 0.1072 
 
 I forgot to squrt transform the metabeast
+
+Strangely, everything is statistically significant if I include rare ASVs.
+I need to look up what rare bugs do to cca.
+
+## Example to share
+
+```{r}
+save(test_mb, test_mb_meta, file = "test_mb.RData")
+```
+
+
+```{r}
+cca(sqrt(test_mb) ~ Info1, data = test_mb_meta) %>% anova(nperm = 9999)
+```
+```{r}
+howoften <- apply(test_mb > 0, 2, sum)
+test_mb_20<- test_mb[,howoften >= 2]
+```
+
+```{r}
+cca(sqrt(test_mb_20) ~ Info1, data = test_mb_meta) %>% anova(nperm = 9999)
+```
+
+????
+Well, that blows a hole in that hypothesis. 
+This comes up as significant even when I do subset it.
+Why doesn't any of my code make sense?
+Somehow test_mb_20 is still way bigger than test_sm
+and I don't understand why.
+
+Its because I was only taking ASVs that showed up at least three times once.
+
+Before I was at least 20% of samples
+
+```{r}
+howoften <- apply(test_mb > 0, 2, sum)
+test_mb_20<- test_mb[,howoften >= (dim(test_mb)[1] * 0.2)]
+```
+
+the challenge is that the test is in presence abscence and I've removed count data.
+What if, to make my life easier, I just do things that have shown up in at least 3 samples.
+
+So, I get a significant result if I include singletons, but not if I remove them.
+
+# Redo CCA with family level patterns.
+cca(sqrt(ratioDf) ~ DayN + Info1, data = metadata_main )
+metabeast4 <- metabeast3b %>%
+  mutate(cca = map2(.x = comm3, .y = meta, ~cca(sqrt(.x) ~ Info1, data = .y)))
+```{r}
+metawhole <- metabeast %>%
+  mutate(cca = map(.x = comm, ~cca(sqrt(.x) ~ Info1 + DayN, data = metadata_main)))
+```
+
+```{r}
+family_cca <- metawhole %>% filter(taxlevel == "Family") %>% pull(cca) %>% .[[1]]
+```
+
+```{r}
+family_cca_wa <- fortify(family_cca, display = "wa") %>% left_join(metadata_main, by = c("Label" = "Sample0")) %>%
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat)))
+```
+
+```{r}
+early_days_fam <- family_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
+late_days_fam <- family_cca_wa %>% filter(DayN >= 14)
+plt3 <- early_days_fam %>% 
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = family_cca_wa, inherit.aes = FALSE) +
+  geom_point(size = 3, stroke = 1.5) + 
+  scale_shape_manual(values = c(21, 22, 23, 1, 1, 1, 1)) +
+  #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
+  scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  #scale_color_manual(values = c(Good = "black", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
+  geom_text(data = late_days_fam, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
+  geom_text(data = family_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good") %>% mutate(Label = str_remove(Label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 3.4, y = CCA2 * 3.4, label = Label), size = 5) +
+  geom_segment(data = family_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 3.2, yend = CCA2 * 3.2), color = "brown4",
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(data = family_cca %>% fortify(display = "cn") %>% mutate(Label = str_remove(Label, "Info1")), inherit.aes = FALSE, aes(x = CCA1, y = CCA2, label = Label), alpha = 0.5, size = 5) +
+  theme_bw(base_size = 16)
+plt3
+```
+
+```{r}
+metadata_limited <- metadata_main %>% filter(DayN < 14)
+ratioDf_limited <- ratioDf[rownames(ratioDf) %in% metadata_limited$Sample0,]
+second_cca <- cca(sqrt(ratioDf_limited) ~ DayN + Info1, data = metadata_limited)
+anova(second_cca, by = "margin")
+```
+
+```{r}
+metawhole <- metabeast %>%
+  mutate(cca = map(.x = comm, ~cca(sqrt(.x) ~ Info1 + DayN, data = metadata_main)))
+```
+
+ratioDf_limited <- ratioDf[rownames(ratioDf) %in% metadata_limited$Sample0,]
+```{r}
+metawhole2 <- metabeast %>%
+  mutate(comm_limited = map(comm, ~.[rownames(.) %in% metadata_limited$Sample0,])) %>%
+  mutate(cca_limited = map(comm_limited, ~cca(sqrt(.) ~ Info1 + DayN, data = metadata_limited)))
+```
+
+```{r}
+family_cca_limited <- metawhole2[metawhole2$taxlevel == "Family","cca_limited"][[1]][[1]]
+```
+
+
+```{r}
+larvae_cca_plotter_limited(family_cca_limited)
+```
+family
+

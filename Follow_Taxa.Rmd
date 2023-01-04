@@ -60,7 +60,7 @@ hatch %>%
   mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
   ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() +
   geom_path() +
-  scale_color_manual(values = c(Best = "black", Ok = "darkblue", Poor = "orange", NoSurvivors =  "red"))
+  scale_color_manual(values = c(Best = "black", Ok = "darkblue", Poor = "orange", NoSurvivors =  "red")) +
   #scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
   scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Phylum) +
   labs(x = "Day") + theme_bw()
@@ -120,7 +120,7 @@ hatch %>%
   filter(Phylum == "Proteobacteria") %>% 
   filter(Family != "Mitochondria") %>%
   mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
-  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
   scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
   labs(x = "Day") + theme_bw()
 ```
@@ -134,7 +134,7 @@ hatch %>%
   filter(Phylum == "Bacteroidetes") %>% 
   filter(Family != "Mitochondria") %>%
   mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
-  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
   scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
   labs(x = "Day") + theme_bw()
 ```
@@ -147,7 +147,7 @@ hatch %>%
   mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
   filter(Phylum == "Bacteroidetes") %>% 
   mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
-  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
   scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Tag_ASV) +
   labs(x = "Day") + theme_bw()
 ```
@@ -161,7 +161,54 @@ hatch %>%
   filter(Phylum == "Cyanobacteria") %>% 
   #filter(Family != "Mitochondria") %>%
   mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
-  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) + geom_path() +
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
   scale_x_continuous(breaks = c(1:20)) + facet_wrap(~Tag_ASV) +
   labs(x = "Day") + theme_bw()
 ```
+
+Are there vibrio
+
+```{r fig.height= 6, fig.width = 6}
+hvib <- hatch %>%
+  filter(Genus == "Vibrio")
+
+Present_vibreos <- hvib %>% group_by(Tag_ASV) %>% summarise(totrat = sum(ratio)) %>% filter(totrat > 0) %>% pull(Tag_ASV)
+hvib <- hvib %>% filter(Tag_ASV %in% Present_vibreos)
+
+hvib %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info2, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("black", "darkblue", "orange", "red")) + geom_path() +
+  scale_x_continuous(breaks = seq(from = 1, to = 20, by = 3)) + facet_wrap(~Tag_ASV, scales = "free_y") +
+  labs(x = "Day") + theme_bw()
+```
+
+Pull vibreo sequences
+
+```{r}
+allfasta <- read_lines(here("Hatchery_UVexperiment_All", "asv_Hatchery_UVexperiment_All.fa"))
+```
+
+```{r}
+fastaDf <- allfasta %>% enframe() %>%
+  mutate(ind = rep(c("ASV","seqquence"), length.out = n())) %>%
+  group_by(ind) %>%
+  mutate(id = row_number()) %>%
+  select(-name) %>%
+  pivot_wider(names_from = ind, values_from = value) %>%
+  select(-id) %>%
+  mutate(nASV = parse_number(ASV))
+```
+
+```{r}
+Present_vibreos %>% parse_number()
+vibSeqDf <- fastaDf %>% 
+  filter(nASV %in% (Present_vibreos %>% parse_number()))
+```
+
+```{r}
+vib_fasta <- c(rbind(vibSeqDf$ASV, vibSeqDf$seqquence))
+write(vib_fasta, here("IntermediateData","vibrios.fa"))
+```
+
+
+
