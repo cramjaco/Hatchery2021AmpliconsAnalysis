@@ -1,0 +1,90 @@
+---
+title: "Exploring Host Amplicons"
+output: html_notebook
+---
+
+The goal of this notebook is to see if 18s oyster amplicon types relate to health at all.
+
+```{r echo=FALSE}
+source("Initial_Processing.R")
+```
+
+```{r}
+countLong <- counts %>% 
+    pivot_longer(-ASV, names_to = "Sample0", values_to = "count") %>%
+    #filter(count > 0) %>%
+    identity()
+countTax <- left_join(countLong, tax, by = "ASV")
+countHostGenes <- countTax %>%
+  filter(Order == "Ostreoida")
+```
+
+How many gene types?
+
+```{r}
+hosts_per_sample <- countHostGenes %>%
+  filter(count > 0) %>%
+  group_by(Sample0) %>%
+  summarise(n = n()) %>%
+  arrange(n)
+
+
+```
+
+```{r}
+hosts_per_sample %>%
+  ggplot(aes(x = n)) + geom_histogram(binwidth = 1)
+```
+So we have different numbers of hosts per thing.
+
+```{r}
+oysterSummary <- countTax %>% filter(Order == "Ostreoida") %>% group_by(Sample0) %>% 
+    summarize(n = n(), OysterCount = sum(count))
+
+hostRA <- countHostGenes %>%
+  left_join(oysterSummary, by = "Sample0") %>%
+  mutate(RA = count/OysterCount, .after = count)
+
+hostRA
+```
+
+
+```{r}
+hostRA %>%
+  ggplot(aes(x = Sample0, y = as.factor(nASV), fill = log(RA))) +
+  geom_point(shape = 21) +
+  scale_fill_viridis_c() +
+  theme(axis.text.x = element_text(angle = 90))
+  
+```
+Ok, so there is basically one abundant host ASV and everything else is less abundant than it.
+I think ALR is the way to look at these, what fraction of ASV1 is everything else.
+
+```{r}
+minRA <- hostRA %>%
+  filter(RA > 0) %>%
+  summarise(minRA = min(RA)) %>%
+  pull(minRA)
+```
+
+
+```{r}
+asv1 <- hostRA %>%
+  filter(ASV == "ASV_1") %>%
+  select(Sample0, count_asv1 = count, ra_asv1 = RA)
+
+hostALR <- hostRA %>%
+  left_join(asv1, by = "Sample0") %>%
+  filter(ASV != "ASV_1") %>%
+  mutate(alr = log10((RA+minRA)/ra_asv1), .after = RA)
+```
+
+```{r fig.height=8, fig.width = 4}
+hostALR %>%
+  ggplot(aes(x = Sample0, y = as.factor(nASV), fill = alr)) +
+  geom_point(shape = 21) +
+  scale_fill_viridis_c() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+Ok, so the strange 18s gnees are only miniscule fractions of the most abundant ASV. EG never more than 1% in the case of ASV2. I doubt these are explaining differences in crashyness.

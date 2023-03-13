@@ -461,3 +461,40 @@ larvae_cca_plotter_limited(family_cca_limited)
 ```
 family
 
+## For proposal
+```{r}
+larvae_cca_plotter_limited_prop <- function(second_cca){
+second_cca_wa <- fortify(second_cca, display = "wa") %>% 
+  left_join(metadata_main, by = c("Label" = "Sample0")) %>% 
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat))) %>%
+  identity()
+
+
+early_days <- second_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
+late_days <- second_cca_wa %>% filter(DayN >= 14)
+plt2 <- early_days %>% 
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info1)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info1, group = `Brood#`), alpha = 0.5, data = second_cca_wa, inherit.aes = FALSE) +
+  geom_point(size = 3, stroke = 1.5, alpha = 0.7) + 
+  scale_shape_manual(values = c(1, 2, 7, 1, 1, 1, 1), name = "Larval Age (Days)") +
+  #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
+  #scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  scale_color_manual(values = c(Good = "darkblue", Crash = "red"), name = "Batch Outcome") +
+  #scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
+  geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
+  geom_text(data = second_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good") %>% mutate(Label = str_remove(Label, "N")) %>% mutate(Label = str_replace(Label, "Day", "Age")), inherit.aes = FALSE, aes(x = CCA1 * 2.4, y = CCA2 * 2.4, label = Label), size = 5) +
+  geom_segment(data = second_cca %>% fortify(display = "bp") %>% filter(Label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 2.2, yend = CCA2 * 2.2), color = "darkgreen",
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(data = second_cca %>% fortify(display = "cn") %>% mutate(Label = str_remove(Label, "Info1")), inherit.aes = FALSE, aes(x = CCA1, y = CCA2, label = Label), alpha = 0.5, size = 4) +
+  theme_bw(base_size = 16)
+plt2
+}
+
+pre_prop_fig1 <- larvae_cca_plotter_limited_prop(family_cca_limited)
+pre_prop_fig1
+```
+```{r}
+ggsave(here("Figures", "Pre_Prop_Fig1.png"), pre_prop_fig1, height = 5, width = 7)
+```
+
+larvae_cca_plotter_limited(second_cca)
