@@ -1,0 +1,178 @@
+---
+title: "Hatchery performance"
+output: html_notebook
+---
+
+My goal is to look at how well broods did over time, highlighting the ones that we used in this analysis
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(here)
+library(tidyxl)
+```
+
+```{r}
+loc_path <- here("HatcheryData", "2021 water treatment.xlsx")
+hper21_0 <- read_excel(loc_path, sheet = "crashes and total drops") %>%
+  mutate(amount = parse_number(amount))
+```
+
+Column B has a bunch of information color coded in. Can I extract that?
+
+```{r}
+cells <- xlsx_cells(loc_path, sheets = "crashes and total drops")
+formats <- xlsx_formats(loc_path)
+```
+
+```{r}
+key_formats <- cells %>%
+  filter(col == 13, row <=7) %>%
+  select(row, character, local_format_id) %>%
+  mutate(colorHex = formats$local$fill$patternFill$fgColor$rgb[local_format_id])
+
+key_formats
+```
+
+```{r}
+brood_formats <- cells %>%
+  filter(col %in% 2:3, row > 1) %>%
+  select(row,col, local_format_id) %>%
+  mutate(colorHex = formats$local$fill$patternFill$fgColor$rgb[local_format_id])
+
+# brood_colors <- brood_formats %>%
+#   pivot_wider(id_cols = "row", names_from = "col", values_from = colorHex)
+
+brood_color_data <- brood_formats %>%
+  group_by(row) %>%
+  summarise(isCrash = "FFFFC7CE" %in% colorHex,
+            isTriploid = "FFFFEB9C" %in% colorHex,
+            isDR = "FFFFCC99" %in% colorHex,
+            )
+
+hper21 <- tibble(hper21_0, brood_color_data) %>%
+  select(-contains(".."), -`from conditioned tank`, -row)
+```
+
+```{r}
+brood_summary <- hper21 %>%
+  group_by(brood) %>%
+  summarise(isCrash = max(isCrash), isTriploid = max(isTriploid), isDR = max(isDR))
+brood_summary
+```
+
+```{r}
+table(brood_summary %>% select(isCrash, isDR))
+table(brood_summary %>% select(isCrash, isTriploid))
+```
+Just not enough DR or triploid broods to run this test. 
+
+```{r fig.height = 8, fig.width = 6}
+hper21 %>%
+  arrange(datetime) %>%
+  #filter(brood == "21-07") %>%
+  ggplot(aes(x = Age, y = amount, .group = "brood")) +
+  scale_color_manual(values = c("black", "red")) +
+  geom_point(aes(color = isCrash)) +
+  geom_path(color = "grey40") +
+  facet_wrap(~brood) +
+  #xlim(3, 12) +
+  scale_x_continuous() +
+  geom_vline(xintercept = 6, color = "grey60") + 
+  geom_vline(xintercept = 9, color = "grey60") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+
+
+```{r fig.height = 8, fig.width = 6}
+hper21 %>%
+  arrange(datetime) %>%
+  #filter(brood == "21-07") %>%
+  ggplot(aes(x = Age, y = amount, .group = "brood")) +
+  scale_color_manual(values = c("black", "red")) +
+  geom_point(aes(color = isCrash)) +
+  geom_path(color = "grey40") +
+  facet_wrap(~brood) +
+  #xlim(3, 12) +
+  scale_x_continuous(limits = c(3, 12), breaks = c(3, 6, 9, 12)) +
+  geom_vline(xintercept = 6, color = "grey60") + 
+  geom_vline(xintercept = 9, color = "grey60") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r fig.height = 8, fig.width = 6}
+hper21 %>%
+  arrange(datetime) %>%
+  #filter(brood == "21-07") %>%
+  ggplot(aes(x = Age, y = `% Mortality`, .group = "brood")) +
+  scale_color_manual(values = c("black", "red")) +
+  geom_point(aes(color = isCrash)) +
+  geom_path(color = "grey40") +
+  facet_wrap(~brood) +
+  #xlim(3, 12) +
+  #scale_x_continuous(limits = c(3, 12), breaks = c(3, 6, 9, 12)) +
+  geom_vline(xintercept = 6, color = "grey60") + 
+  geom_vline(xintercept = 9, color = "grey60") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+I don't understand the relationship between so called "crashes" in my dataset and these. Will talk to steff.
+
+```{r fig.height = 8, fig.width = 6}
+hper21 %>%
+  arrange(datetime) %>%
+  #filter(brood == "21-07") %>%
+  ggplot(aes(x = Age, y = `% Mortality`, .group = "brood")) +
+  scale_color_manual(values = c("black", "red")) +
+  geom_point(aes(color = isCrash)) +
+  geom_path(color = "grey40") +
+  facet_wrap(~brood) +
+  #xlim(3, 12) +
+  scale_x_continuous(limits = c(3, 12), breaks = c(3, 6, 9, 12)) +
+  geom_vline(xintercept = 6, color = "grey60") + 
+  geom_vline(xintercept = 9, color = "grey60") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+hper21 %>%
+  arrange(datetime) %>%
+  filter(brood == "21-46")
+```
+
+
+```{r}
+hper21 %>%
+  arrange(datetime) %>%
+  filter(brood == "21-46") %>%
+  ggplot(aes(y = Age, x = datetime, .group = "brood")) +
+  geom_point() +
+  geom_path() +
+  facet_wrap(~brood)
+```
+```{r}
+hper21 %>%
+  arrange(datetime) %>%
+  filter(brood == "21-01") %>%
+  ggplot(aes(y = Age, x = datetime, .group = "brood")) +
+  geom_point() +
+  geom_path() +
+  facet_wrap(~brood)
+```
+
+```{r}
+hper21 %>%
+  arrange(datetime) %>%
+  filter(brood == "21-01") %>%
+  ggplot(aes(y = amount, x = datetime, .group = "brood")) +
+  geom_point() +
+  geom_path() +
+  facet_wrap(~brood)
+```
+
+If this is from mixing tanks, I should just add the numbers.
