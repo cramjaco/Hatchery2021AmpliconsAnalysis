@@ -32,7 +32,8 @@ nonOyster_wm <- fortify_oyster_wm(counts, tax, metadata)
 ## Keep only stuff from the main hatchery study
 
 hatch <- nonOyster_wm %>% 
-  filter(Info1 %in% c("Good", "Crash"))
+  filter(Info1 %in% c("Good", "Crash")) %>%
+  filter(Order != "Chloroplast")
 
 ## Total bacterial abundance
 hatch_abun <- hatch %>%

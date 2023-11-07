@@ -39,14 +39,14 @@ first_cca_wa <- fortify(first_cca, display = "wa") %>%
 early_days <- first_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
 late_days <- first_cca_wa %>% filter(DayN >= 14)
 plt1 <- early_days %>% 
-  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info1)) +
-  geom_path(aes(x = CCA1, y = CCA2, color = Info1, group = `Brood#`), data = first_cca_wa, inherit.aes = FALSE) +
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = first_cca_wa, inherit.aes = FALSE) +
   geom_point(size = 3, stroke = 1.5) + 
   scale_shape_manual(values = c(21, 22, 23, 1, 1, 1, 1)) +
   #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
-  #scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
   #scale_color_manual(values = c(Good = "black", Crash = "red")) +
-  scale_color_manual(values = c(Good = "darkblue", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
   geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
   geom_text(data = first_cca %>% fortify(display = "bp") %>% filter(label != "Info1Good") %>% mutate(label = str_remove(label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 3.4, y = CCA2 * 3.4, label = label), size = 5) +
   geom_segment(data = first_cca %>% fortify(display = "bp") %>% filter(label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 3.2, yend = CCA2 * 3.2), color = "brown4",
@@ -70,8 +70,34 @@ Info2_Levels <- c("Best", "Ok", "Poor", "NoSurvivors")
 ```
 
 
+```{r}
+second_cca_wa <- fortify(second_cca, display = "wa") %>% 
+  left_join(metadata_main, by = c("label" = "Sample0")) %>% 
+  mutate(DayCat = ordered(DayCat, levels = unique(DayCat))) %>%
+  identity()
+
+early_days <- second_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
+late_days <- second_cca_wa %>% filter(DayN >= 14)
+plt2 <- early_days %>% 
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = second_cca_wa, inherit.aes = FALSE) +
+  geom_point(size = 3, stroke = 1.5) + 
+  scale_shape_manual(values = c(1, 2, 7, 1, 1, 1, 1)) +
+  #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
+  #scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
+  #scale_color_manual(values = c(Good = "black", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
+  geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
+  geom_text(data = second_cca %>% fortify(display = "bp") %>% filter(label != "Info1Good") %>% mutate(label = str_remove(label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 2.4, y = CCA2 * 2.4, label = label), size = 5) +
+  geom_segment(data = second_cca %>% fortify(display = "bp") %>% filter(label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 2.2, yend = CCA2 * 2.2), color = "blue",
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(data = second_cca %>% fortify(display = "cn") %>% mutate(label = str_remove(label, "Info1")), inherit.aes = FALSE, aes(x = CCA1, y = CCA2, label = label), alpha = 0.5, size = 4) +
+  theme_bw(base_size = 16)
+plt2
+```
 
 ```{r}
+
 larvae_cca_plotter_limited <- function(second_cca){
 second_cca_wa <- fortify(second_cca, display = "wa") %>% 
   left_join(metadata_main, by = c("label" = "Sample0")) %>% 
@@ -82,14 +108,14 @@ second_cca_wa <- fortify(second_cca, display = "wa") %>%
 early_days <- second_cca_wa %>% filter(DayN < 14) %>% mutate(DayCat = droplevels(DayCat))
 late_days <- second_cca_wa %>% filter(DayN >= 14)
 plt2 <- early_days %>% 
-  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info1)) +
-  geom_path(aes(x = CCA1, y = CCA2, color = Info1, group = `Brood#`), data = second_cca_wa, inherit.aes = FALSE) +
+  ggplot(aes(x = CCA1, y = CCA2, shape = DayCat, group = `Brood#`, color = Info2)) +
+  geom_path(aes(x = CCA1, y = CCA2, color = Info2, group = `Brood#`), data = second_cca_wa, inherit.aes = FALSE) +
   geom_point(size = 3, stroke = 1.5) + 
   scale_shape_manual(values = c(1, 2, 7, 1, 1, 1, 1)) +
   #scale_shape_manual(values = c(21,22,23), breaks = c("3-5", "7-8", "10-12")) +
   #scale_fill_manual(values = rep(c("green", "blue", "black"), 5)) +
   #scale_color_manual(values = c(Good = "black", Crash = "red")) +
-  scale_color_manual(values = c(Good = "darkblue", Crash = "red")) +
+  scale_color_manual(values = c(Best = "black", Ok = "blue", Poor = "Orange", NoSurvivors = "red")) +
   geom_text(data = late_days, aes(x = CCA1, y = CCA2, label = DayCat), inherit.aes = FALSE) +
   geom_text(data = second_cca %>% fortify(display = "bp") %>% filter(label != "Info1Good") %>% mutate(label = str_remove(label, "N")), inherit.aes = FALSE, aes(x = CCA1 * 2.4, y = CCA2 * 2.4, label = label), size = 5) +
   geom_segment(data = second_cca %>% fortify(display = "bp") %>% filter(label != "Info1Good"), inherit.aes = FALSE, aes(x = 0, y = 0, xend = CCA1 * 2.2, yend = CCA2 * 2.2), color = "blue",
@@ -101,7 +127,6 @@ plt2
 
 larvae_cca_plotter_limited(second_cca)
 ```
-
 
 ```{r}
 ggsave(here("Figures", "CCA_Days3-12.png"), plot = plt2, height = 4, width = 6)
@@ -217,7 +242,8 @@ shows_up_enough <- function(cdf, nn = NULL, pct = NULL){
 }
 
 metabeast3b <- metabeast3 %>%
-  mutate(comm3 = map(comm2, ~shows_up_enough(.,n = 3)))
+  mutate(comm3 = map(comm2, ~shows_up_enough(.,n = 3))) %>%
+  mutate(minrat = map(comm3, ~.>0))
 ```
 
 
@@ -457,13 +483,6 @@ family_cca_limited <- metawhole2[metawhole2$taxlevel == "Family","cca_limited"][
 
 
 ```{r}
-larvae_cca_plotter_limited <- function(second_cca){
-second_cca_wa <- fortify(second_cca, display = "wa") %>% 
-  left_join(metadata_main, by = c("label" = "Sample0")) %>% 
-  mutate(DayCat = ordered(DayCat, levels = unique(DayCat))) %>%
-  identity()
-}
-
 larvae_cca_plotter_limited(family_cca_limited)
 ```
 family

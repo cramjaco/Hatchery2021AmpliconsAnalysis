@@ -58,23 +58,38 @@ add_tag_to_tax <- function(tax){
   taxa
 }
 
+# group_taxa <- function(fort, taxLevel){
+#   taxLevel_eq <- enquo(taxLevel)
+#   fort %>%
+#     group_by(!!taxLevel_eq, Sample0) %>%
+#     summarise(across(.cols = everything(), .fns = first),
+#               across(.cols = c(count, ratio), .fns = sum)
+#     ) %>%
+#     mutate(GlomLevel = !!taxLevel_eq)
+# }
+
 group_taxa <- function(fort, taxLevel){
   taxLevel_eq <- enquo(taxLevel)
   fort %>%
     group_by(!!taxLevel_eq, Sample0) %>%
-    summarise(across(.cols = everything(), .fns = first),
-              across(.cols = c(count, ratio), .fns = sum)
+    summarise(across(.cols = c(count, ratio), .fns = sum),
+              across(.cols = everything(), .fns = first) # Switch order
     ) %>%
     mutate(GlomLevel = !!taxLevel_eq)
 }
 
+# I was unable to ensym taxLevel because it instead ensyms the "." operator from map
+# I went back to the "depreciated" `group_by`
 group_taxa_2 <- function(fort, taxLevel){
+  #taxLevel_ens <- ensym(taxLevel)
   fort %>%
-    group_by_(taxLevel, "Sample0") %>%
+    group_by_(taxLevel, "Sample0") %>% # was group_by_
     summarise(across(.cols = everything(), .fns = first),
-              across(.cols = c(count, ratio), .fns = sum)
+              across(.cols = c(count, ratio), .fns = sum),
+              .groups = "keep"
     ) %>%
-    rename(GTax = 1)
+    #rename(GTax = 1) %>%
+    identity()
 }
 
 keep_common <- function(fort, fraction = 0.2, minhits = 3){

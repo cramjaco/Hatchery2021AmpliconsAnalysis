@@ -13,10 +13,10 @@ process_drain_log_brood <- function(spawnDf, drainDf){
   
   active_tanks <- c()
   
-  dates_in_brood <- drain2138$datetime %>% unique() %>% sort()
+  dates_in_brood <- drainDf$datetime %>% unique() %>% sort()
   
   brood_table <- tibble(
-    datetime = c(spawn2138$`Date Spawned`, drain2138$datetime) %>% unique() %>% sort(),
+    datetime = c(spawnDf$`Date Spawned`, drainDf$datetime) %>% unique() %>% sort(),
     observed = NA,
     dead = NA,
     swimming = NA,
@@ -61,7 +61,7 @@ process_drain_log_brood <- function(spawnDf, drainDf){
     
     tansferred_tanks_table_summed <- transferred_tanks_table %>%
       group_by(fromLocation, toLocation, toSystem) %>%
-      summarise(amount = sum(amount)) %>%
+      summarise(amount = sum(amount), .groups = "keep") %>%
       ungroup()
     
     day_accounting_table <- full_join(

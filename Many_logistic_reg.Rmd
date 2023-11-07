@@ -16,16 +16,18 @@ library(broom)
 ```
 
 ```{r}
+
 test_asv <- early %>% filter(ASV == "ASV_4") %>%
   mutate(isCrash = Info1 == "Crash")
+test_asv[test_asv$ratio > 0,]$ratio %>% min() -> rat_min
 ggplot(data = test_asv, aes(x = log10(ratio), y = Info1)) + geom_point()
-test_mod <- glm(isCrash ~ log10(ratio), data = test_asv, family = "binomial")
+test_mod <- glm(isCrash ~ log10(ratio + rat_min), data = test_asv, family = "binomial")
 summary(test_mod)
 ```
 
 
 ```{r}
-my_logistic_glm <- function(df){glm(isCrash ~ log10(ratio), data = df, family = "binomial")}
+my_logistic_glm <- function(df){glm(isCrash ~ log10(ratio + rat_min), data = df, family = "binomial")}
 quiet_logistic_glm <- quietly(my_logistic_glm)
 
 asv_models <- early %>% 
@@ -48,16 +50,17 @@ asv_model_data <- asv_models %>%
 
 asv_model_ok <- asv_model_data %>%
   filter(`p.value` < 0.05)
+asv_model_ok
 ```
 Hah! Nothing comes close to predicting crashes.
 
 # What about after the crashes
 
 ```{r}
-many_logistic <- function(fort){
+many_logistic <- function(fort, gb = ASV){
   asv_models <- fort %>% 
   mutate(isCrash = Info1 == "Crash") %>%
-  group_by(ASV) %>%
+  group_by({{gb}}) %>% # or gtax
   nest() %>%
   mutate(modLs = map(data, quiet_logistic_glm)) %>%
   mutate(mod = map(modLs, ~.[["result"]]),
@@ -67,24 +70,41 @@ many_logistic <- function(fort){
   identity()
   
   asv_model_data <- asv_models %>%
-  select(ASV, tid) %>%
+  select({{gb}}, tid) %>%
   unnest(tid) %>%
   filter(term != "(Intercept)")
 }
 ```
 
 ```{r}
+asv_model_group_test <- many_logistic(early, Family)
+asv_model_group_test %>% arrange(p.value) %>% filter(p.value < 0.05)
+```
+Now, somehow there are 11 statistically significant families.
+I don't get it. When I group to all levels, I don't get this result, but when I just group to family, it looks like this. What's going on?
+One thing is that I'm not doing a summarize call first.
+
+```{r}
 asv_model_data_01 <- many_logistic(early)
+asv_model_data_01 %>% filter(p.value < 0.05)
 ```
 
 ```{r}
 asv_model_data_mid <- many_logistic(mid)
 asv_model_data_mid_ok <- asv_model_data_mid %>% filter(p.value < 0.05)
+asv_model_data_mid_ok
 ```
 
-Also nothing. Huh.
+One weak thing.
 
 # What about by different taxonomic levels
+
+Test group taxa
+
+```{r}
+group_taxa_2(early, "Family")
+```
+
 
 ```{r}
 taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
@@ -94,17 +114,19 @@ glomThing <- tibble(taxLevel = taxLevels) %>%
 
 ```{r}
 glomThing_2 <- glomThing %>% 
-  mutate(data2 = map(data1, many_logistic)) %>%
+  mutate(data2 = map(data1, many_logistic)) %>% # I should modify many_logistic to group by the named level
   unnest(data2) %>%
   select(-data1)
 ```
 
 Ok this is silly, everything is named by the first asv in the group still, but should still work-ish
 
+Something isn't making sense in the output here. Why aren't there coherent groups?
+
 ```{r}
 glomThing_2 %>% filter(p.value < 0.05)
 ```
-Love it.
+Nothing
 
 # And mid?
 
@@ -113,10 +135,10 @@ taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
 glomThing <- tibble(taxLevel = taxLevels) %>%
   mutate(data1 = map(taxLevel, ~group_taxa_2(mid, .)))
 ```
-
+# Debug here and in many logistic
 ```{r}
 glomThing_2 <- glomThing %>% 
-  mutate(data2 = map(data1, many_logistic)) %>%
+  mutate(data2 = map2(data1, taxLevel, many_logistic)) %>%
   unnest(data2) %>%
   select(-data1)
 ```

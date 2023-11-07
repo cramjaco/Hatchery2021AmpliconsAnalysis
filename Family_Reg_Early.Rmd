@@ -1,0 +1,79 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+I have been having issues with the many logistic regressions. My goal here is to (1) just look at family level patterns to early batches. and (2) To figure out what is happening when I get failed regression output.
+
+I'm focusing on family level patterns because my community analysis suggests highlighting those.
+
+```{r}
+source("Initial_Processing.R")
+library(purrr)
+library(broom)
+```
+
+functions
+
+
+```{r}
+early_fam <- early %>%
+  group_by(Family, Sample0) %>%
+  summarise(Info1 = first(Info1), ratio = sum(ratio), .groups = "keep")
+```
+
+I only want families that show up at least sometimes
+```{r}
+fam_hits_early <- early_fam %>%
+  group_by(Family) %>%
+  summarise(hits = sum(ratio>0), n = n(), .groups = "keep") %>%
+  arrange(-hits)
+
+ggplot(fam_hits_early, aes(x = hits)) + geom_histogram()
+```
+
+Lets just keep families that show up at least n = 5 times (out of 15).
+
+```{r}
+required_hits <- 5
+frequent_families <- fam_hits_early %>%
+  filter(hits > 5) %>%
+  pull(Family)
+```
+
+```{r}
+early_fam_frequent <- early %>%
+  filter(Family %in% frequent_families) %>%
+  group_by(Family, Sample0) %>%
+  summarise(Info1 = first(Info1), ratio = sum(ratio), .groups = "keep")
+```
+
+Pulling out of the many_logistic function
+
+```{r}
+early_fam_frequent %>% ungroup() %>% filter(ratio > 0) %>% summarise(rat_min = min(ratio)) %>% pull(rat_min) -> rat_min
+```
+
+
+```{r}
+my_logistic_glm <- function(df){glm(isCrash ~ log10(ratio + rat_min), data = df, family = "binomial")}
+quiet_logistic_glm <- quietly(my_logistic_glm)
+
+family_models <- early_fam_frequent %>% 
+  mutate(isCrash = Info1 == "Crash") %>%
+  group_by(Family) %>% # or gtax
+  nest() %>%
+  mutate(modLs = map(data, quiet_logistic_glm)) %>%
+  mutate(mod = map(modLs, ~.[["result"]]),
+         warn = map(modLs, ~.[["warnings"]]), # map_chr cant handle zero length vectors
+         tid = map(mod, tidy)
+         ) %>%
+  identity()
+
+family_model_data <- family_models %>%
+  select(Family, tid) %>%
+  unnest(tid) %>%
+  filter(term != "(Intercept)")
+```
+
+Ok. I'm confident at this point that no family "explains" crash status.
+The NAs come closest, whatever that means.
