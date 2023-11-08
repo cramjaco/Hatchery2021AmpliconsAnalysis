@@ -45,10 +45,13 @@ bh %>% group_by(`Brood#`, DayN, Info1) %>% summarise(n = n()) %>% arrange(-n) %>
 bhs
 ```
 Several taxa have multiple occurances
-21-56 (day 7)
-21-58 (day 8)
-21-57 (day 10)
-21-11 (day 17)
+21-56 (day 7) -- tube 187 is actually from 21-54 (not part of this analysis)
+21-58 (day 8) -- 213 Should be 11 days, not 8
+21-57 (day 10) -- Tank 8 (219 should be 14 (not 10) days)
+21-11 (day 17) -- (Tube H57 is bottom of tank and the other is normal screen larvae)
+
+To do: remove tubes 187 and 057
+Change DayN of 219 and 213 up front.
 
 
 Eukayrotic Phyla that sow up with at least 3 reads in at least 30% of samples. 

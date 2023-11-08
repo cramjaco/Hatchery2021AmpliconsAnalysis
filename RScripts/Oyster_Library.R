@@ -84,8 +84,9 @@ group_taxa_2 <- function(fort, taxLevel){
   #taxLevel_ens <- ensym(taxLevel)
   fort %>%
     group_by_(taxLevel, "Sample0") %>% # was group_by_
-    summarise(across(.cols = everything(), .fns = first),
-              across(.cols = c(count, ratio), .fns = sum),
+    summarise(
+              across(.cols = c(count, ratio), .fns = sum), # reordered here too
+              across(.cols = everything(), .fns = first),
               .groups = "keep"
     ) %>%
     #rename(GTax = 1) %>%

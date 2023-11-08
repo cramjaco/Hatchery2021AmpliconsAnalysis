@@ -21,10 +21,36 @@ cb12 <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f',
 trub20 <- c('#e6194b','#3cb44b','#ffe119','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff','#aa6e28','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#000080','#808080','#FFFFFF','#000000')
 
 dataDir <- "Hatchery_UVexperiment_All"
-metadata <- read_csv(here(dataDir, paste0("metadata_expanded.csv")))
+metadata0 <- read_csv(here(dataDir, paste0("metadata_expanded.csv")))
 counts <- read_csv(here(dataDir, paste0("counts_", dataDir, ".csv"))) %>%
   rename(ASV = 1)
 tax <- read_csv(here(dataDir, paste0("tax_", dataDir, ".csv"))) %>% add_tag_to_tax()
+
+## Correct issues with metadata
+
+# Several taxa have multiple occurances
+# 21-56 (day 7) -- tube 183 is actually from 21-54 (not part of this analysis)
+# 21-58 (day 8) -- 213 Should be 11 days, not 8
+# 21-57 (day 10) -- Tank 8 (219 should be 14 (not 10) days)
+# 21-11 (day 17) -- (Tube H57 is bottom of tank and the other is normal screen larvae)
+# 
+# To do: remove tubes 183 and 057
+# Change DayN of 219 and 213 up front.
+
+metadata <- metadata0
+#  # 21-56 (day 7) -- tube 183 is actually from 21-54 (not part of this analysis)
+metadata[which(metadata$`Tube#` == "0187"), "Brood#"] <- "21-54"
+metadata[which(metadata$`Tube#` == "0187"), "Info1"] <- "Unk"
+metadata[which(metadata$`Tube#` == "0187"), "Info2"] <- "Unk"
+
+# 21-58 (day 8) -- 213 Should be 11 days, not 8
+metadata[which(metadata$`Tube#` == "0213"), "DayN"] <- 11
+
+# 21-57 (day 10) -- Tank 8 (219 should be 14 (not 10) days)
+metadata[which(metadata$`Tube#` == "0219"), "DayN"] <- 14
+
+# 21-11 (day 17) -- (Tube H57 is bottom of tank and the other is normal screen larvae)
+metadata[which(metadata$`Tube#` == "0057"), "Info2"] <- "Sludge"
 
 ## Convert into long format
 nonOyster_wm <- fortify_oyster_wm(counts, tax, metadata)
@@ -33,7 +59,10 @@ nonOyster_wm <- fortify_oyster_wm(counts, tax, metadata)
 
 hatch <- nonOyster_wm %>% 
   filter(Info1 %in% c("Good", "Crash")) %>%
-  filter(Order != "Chloroplast")
+  filter(Order != "Chloroplast") %>%
+  # remove odd samples
+  filter(!(`Info2` %in% c("Unk", "Sludge"))) %>% 
+  identity()
 
 ## Total bacterial abundance
 hatch_abun <- hatch %>%
@@ -50,7 +79,9 @@ mid <- hatch %>%
 dayCat <- read_csv("DayCat.csv") %>%
   mutate(DayCat = ordered(DayCat, levels = unique(DayCat)))
 
-metadata_main <- metadata %>% filter(Info1 %in% c("Good", "Crash")) %>%
+metadata_main <- metadata %>%
+  filter(Info1 %in% c("Good", "Crash")) %>%
+  filter(!(`Info2` %in% c("Unk", "Sludge")))
   left_join(read_csv("DayCat.csv"), by = "DayN")
 
 

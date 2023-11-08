@@ -267,6 +267,7 @@ metabeast_flex
 ```
 
 I'm confused about why the 10-12 tag asv samples don't look like they do earlier in this notebook.
+[These should differ with the different grouping, but aren't. Check this.]
 
 ```{r}
 flextable::save_as_docx(metabeast_flex, path = here("Tables", "Metabeast.docx"))
