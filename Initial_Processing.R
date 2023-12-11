@@ -24,7 +24,10 @@ dataDir <- "Hatchery_UVexperiment_All"
 metadata0 <- read_csv(here(dataDir, paste0("metadata_expanded.csv")))
 counts <- read_csv(here(dataDir, paste0("counts_", dataDir, ".csv"))) %>%
   rename(ASV = 1)
-tax <- read_csv(here(dataDir, paste0("tax_", dataDir, ".csv"))) %>% add_tag_to_tax()
+tax0 <- read_csv(here(dataDir, paste0("tax_", dataDir, ".csv"))) %>% add_tag_to_tax()
+tax <- tax0 %>%
+  mutate(Phylum = if_else(Phylum == "Proteobacteria", Class, Phylum)) %>%# Use class names for Proteobacteria
+  mutate(Phylum = str_replace_all(Phylum, c("^Alpha" = "α-", "^Beta" = "β-", "^Gamma" = "γ-", "^Delta" = "δ-", "^Epsilon" = "ε", "^Zeta" = "ζ" )))
 
 ## Correct issues with metadata
 
@@ -81,7 +84,7 @@ dayCat <- read_csv("DayCat.csv") %>%
 
 metadata_main <- metadata %>%
   filter(Info1 %in% c("Good", "Crash")) %>%
-  filter(!(`Info2` %in% c("Unk", "Sludge")))
+  filter(!(`Info2` %in% c("Unk", "Sludge"))) %>%
   left_join(read_csv("DayCat.csv"), by = "DayN")
 
 

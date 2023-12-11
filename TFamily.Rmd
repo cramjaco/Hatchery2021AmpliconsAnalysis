@@ -1,0 +1,121 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Now that I'm back to thinking family patterns relate to crashes, I'd like to identify some taxa that are higher in 3 or 5 day treatments.
+
+Lasso didn't work, probably because we are under sampled. I think I'll try t-tests
+
+First run SecondPassCore.Rmd
+```{r}
+library(infer) # tidy t-test
+```
+
+
+```{r}
+FamilyDf <- metabeast %>% filter(taxlevel == "Family") %>% pull(df) %>% .[[1]]
+```
+
+```{r}
+FamilyDf %>% filter(DayN>=3 & DayN <=5, !is.na(Taxid)) %>% group_by(Taxid) %>% summarise(appears_in = sum(ratio > 0)) %>% arrange(-appears_in) -> TaxHits
+TaxHits
+
+CheckThese <-  TaxHits %>% filter(appears_in >= 6) %>% pull(Taxid)
+CheckThese
+
+FamilyDf_Early <- FamilyDf %>% filter(DayN>=3 & DayN <=5, !is.na(Taxid)) %>% filter(Taxid %in% CheckThese)
+
+```
+
+
+
+Test
+note, ratio on left, this is not a lm
+```{r}
+t_test(FamilyDf_Early, ratio~Info1)
+```
+```{r}
+FamilyDf_Early %>% group_by(Taxid) %>%
+  nest() %>%
+  mutate(mod = map(data, ~t_test(., ratio~Info1))) %>% 
+  select(-data) %>%
+  unnest(mod) %>%
+  left_join(TaxHits) %>%
+  arrange(p_value)
+```
+Never statistically significant. Huh.
+
+## As above but for all groups
+
+```{r}
+TTestInquire <- metabeast %>%
+  filter(taxlevel %in% c("Family", "Genus")) %>%
+  select(-comm) %>%
+  unnest(df) %>%
+  group_by(taxlevel, DayN, Taxid) %>%
+  summarise(n = n(), .groups = "keep") %>%
+  arrange(-n)
+TTestInquire
+```
+
+
+```{r}
+TTestPreamble <- metabeast %>%
+  #filter(taxlevel %in% c("Family", "Genus")) %>%
+  select(-comm) %>%
+  unnest(df) %>%
+  filter(DayN <= 12) %>%
+  left_join(dayCat, by = "DayN") %>%
+  mutate(ratio = sqrt(ratio)) %>% # Testing normalization
+  identity()
+
+TTHits <- TTestPreamble %>%
+  group_by(taxlevel, DayCat, Taxid) %>%
+  summarise(appears_in = sum(ratio > 0)) %>%
+  arrange(-appears_in) %>%
+  ungroup()
+
+TTestPreamble_01 <- TTestPreamble %>%
+  left_join(TTHits, by = join_by(taxlevel, Taxid, DayCat)) %>%
+  filter(appears_in >=6)
+
+TTestInsanity <- TTestPreamble_01 %>%
+  group_by(taxlevel, DayCat, Taxid) %>%
+  nest() %>%
+  mutate(mod = map(data, ~t_test(., ratio~Info1, order = c("Crash", "Good")))) %>% 
+  select(-data) %>%
+  unnest(mod)
+```
+Why do some species have only some observations? What the heck?
+
+```{r}
+TTestInsanity %>%
+  filter(!is.na(p_value)) %>%
+  filter(DayCat == "3-5") %>%
+  arrange(p_value) %>%
+  head()
+```
+
+```{r}
+TTestSig0 <- TTestInsanity %>%
+  ungroup() %>%
+  filter(!is.na(p_value)) %>%
+  group_by(taxlevel, DayCat) %>%
+  mutate(FDR = p.adjust(p_value, method = "BH")) %>%
+  ungroup() %>%
+  mutate(FDR_Ungrouped = p.adjust(p_value, method = "BH")) %>%
+  identity()
+
+str(TTestSig0)
+
+TTestSig <- TTestSig0 %>%
+  filter(p_value < 0.05)
+
+dim(TTestSig)
+TTestSig
+```
+
+What is going on with my false discovery rates and why are they 0.381 regardless of P-value?
+
+https://www.ncbi.nlm.nih.gov/nucleotide/LC075346.1?report=genbank&log$=nuclalign&blast_rank=1&RID=R70Z0NHG013

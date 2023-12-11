@@ -63,8 +63,15 @@ plt1
 metadata_limited <- metadata_main %>% filter(DayN < 14)
 ratioDf_limited <- ratioDf[rownames(ratioDf) %in% metadata_limited$Sample0,]
 second_cca <- cca(sqrt(ratioDf_limited) ~ DayN + Info1, data = metadata_limited)
-anova(second_cca, by = "margin")
+anova(second_cca, by = "margin", permutations = 9999)
 ```
+
+```{r}
+second_cca_ix <- cca(sqrt(ratioDf_limited) ~ DayN * Info1, data = metadata_limited)
+anova(second_cca_ix, by = "margin", permutations = 9999)
+```
+
+
 ```{r}
 Info2_Levels <- c("Best", "Ok", "Poor", "NoSurvivors")
 ```
@@ -99,7 +106,8 @@ plt2 <- early_days %>%
 plt2
 }
 
-larvae_cca_plotter_limited(second_cca)
+plt2 <- larvae_cca_plotter_limited(second_cca)
+plt2
 ```
 
 
@@ -154,7 +162,8 @@ taxLevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Tag_AS
 #}
 
 # was nonOyster_wm # then nonOyster20_wm
-group_by_taxlevel <- function(taxlevel, data = nonOyster_wm %>% filter(Info1 %in% c("Crash", "Good"))){
+# group_by_taxlevel <- function(taxlevel, data = nonOyster_wm %>% filter(Info1 %in% c("Crash", "Good"))){
+group_by_taxlevel <- function(taxlevel, data = hatch){
   taxlevelQ <- enquo(taxlevel)
   data %>%
     group_by(Sample, `Brood#`, DayN, Type, Info1, Info2, "Taxid" = rlang::eval_tidy(sym(taxlevel))) %>%
@@ -249,7 +258,7 @@ To do: anova all of these and make into one table.
 metabeast_flex <- metabeast_table %>%
   mutate(daycat = ordered(daycat, levels = dayCatLev),
          taxlevel = ordered(taxlevel, levels = taxLevels)) %>%
-  mutate(FDR = p.adjust(`p.value`)) %>%
+  mutate(FDR = p.adjust(`p.value`, method = "BH")) %>%
   mutate(taxlevel = recode(taxlevel, "Tag_ASV" = "ASV")) %>%
   select(daycat, everything()) %>%
   arrange(daycat, taxlevel) %>%
@@ -430,13 +439,19 @@ plt3
 metadata_limited <- metadata_main %>% filter(DayN < 14)
 ratioDf_limited <- ratioDf[rownames(ratioDf) %in% metadata_limited$Sample0,]
 second_cca <- cca(sqrt(ratioDf_limited) ~ DayN + Info1, data = metadata_limited)
-anova(second_cca, by = "margin")
+anova(second_cca, by = "margin", permutations = 9999)
 ```
 
 ```{r}
 minrat <- min(ratioDf_limited[ratioDf_limited>0])
 second_rda <- rda(log(ratioDf_limited + minrat) ~ DayN + Info1, data = metadata_limited)
-anova(second_rda, by = "margin")
+anova(second_rda, by = "margin", permutations = 9999)
+```
+
+Interaction test
+```{r}
+second_rda_ix <- rda(log(ratioDf_limited + minrat) ~ DayN * Info1, data = metadata_limited)
+anova(second_rda_ix, by = "margin", permutations = 99999)
 ```
 
 
@@ -470,6 +485,7 @@ larvae_cca_plotter_limited(family_cca_limited)
 family
 
 ## For proposal
+And paper. Just red and blue (good vs crash).
 ```{r}
 larvae_cca_plotter_limited_prop <- function(second_cca){
 second_cca_wa <- fortify(second_cca, display = "wa") %>% 
@@ -503,9 +519,19 @@ plt2
 pre_prop_fig1 <- larvae_cca_plotter_limited_prop(family_cca_limited)
 pre_prop_fig1
 ```
+
 ```{r}
 ggsave(here("Figures", "Pre_Prop_Fig1.png"), pre_prop_fig1, height = 5, width = 6)
 ```
+
+Plot interactions
+
+
+```{r}
+plot_ix <- larvae_cca_plotter_limited_prop(second_cca_ix)
+plot_ix
+```
+
 
 I wonder if I could add families scores to this latest plot.
 
