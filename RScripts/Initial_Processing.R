@@ -83,13 +83,13 @@ early <- hatch %>%
 mid <- hatch %>%
   filter(DayN >= 7, DayN <= 8)
 
-dayCat <- read_csv("DayCat.csv") %>%
+dayCat <- read_csv(here("HatcheryData","DayCat.csv")) %>%
   mutate(DayCat = ordered(DayCat, levels = unique(DayCat)))
 
 metadata_main <- metadata %>%
   filter(Info1 %in% c("Good", "Crash")) %>%
   filter(!(`Info2` %in% c("Unk", "Sludge"))) %>%
-  left_join(read_csv("DayCat.csv"), by = "DayN")
+  left_join(dayCat, by = "DayN")
 
 
 

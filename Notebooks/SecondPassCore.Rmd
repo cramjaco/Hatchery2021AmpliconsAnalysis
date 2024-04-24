@@ -12,7 +12,8 @@ library(plotly)
 library(purrr)
 library(broom)
 library(flextable)
-source("Initial_Processing.R")
+library(here)
+source(here("RScripts","Initial_Processing.R"))
 ```
 
 ## Canonical correspondence analysis.
@@ -379,7 +380,7 @@ I need to look up what rare bugs do to cca.
 ## Example to share
 
 ```{r}
-save(test_mb, test_mb_meta, file = "test_mb.RData")
+save(test_mb, test_mb_meta, file = here("IntermediateData", "test_mb.RData"))
 ```
 
 

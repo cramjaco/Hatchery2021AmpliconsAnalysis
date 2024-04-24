@@ -5,7 +5,8 @@ output: html_notebook
 Lets just try to get an idea of what communtiy structure does over time.
 
 ```{r}
-source("Initial_Processing.R")
+library(here)
+source(here("RScripts","Initial_Processing.R"))
 ```
 
 ```{r}
