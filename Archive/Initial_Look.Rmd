@@ -1,0 +1,81 @@
+---
+title: "Initial Look"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(readr)
+library(stringr)
+library(tibble)
+library(here)
+library(tidyr)
+library(ggplot2)
+```
+
+
+
+```{r}
+dataDir <- "Hatchery_UVexperiment_All"
+metadata <- read_csv(here(dataDir, paste0("metadata_", dataDir, ".csv")))
+counts <- read_csv(here(dataDir, paste0("counts_", dataDir, ".csv"))) %>%
+  rename(ASV = 1)
+tax <- read_csv(here(dataDir, paste0("tax_", dataDir, ".csv")))
+```
+
+
+
+
+```{r}
+countLong <- counts %>% 
+  pivot_longer(-ASV, names_to = "Sample0", values_to = "count") %>%
+  filter(count > 0)
+```
+
+```{r}
+countTax <- left_join(countLong, tax, by = "ASV") #
+head(countTax)
+```
+
+```{r}
+countTax %>% filter(Order == "Ostreoida", Sample0 == "H138") %>% select(ASV, Sample0, count)
+```
+
+```{r}
+oysterSummary <- countTax %>% filter(Order == "Ostreoida") %>% group_by(Sample0) %>% 
+  summarize(n = n(), OysterCount = sum(count))
+oysterSummary %>%
+  ggplot(aes(x = n)) + geom_histogram(bins = 30)
+```
+When are there zero oysters?
+
+```{r}
+oysterSummary %>% filter(n == 0)
+```
+
+Never, just an artifact of the plot.
+
+```{r}
+nonOyster <- countTax %>% filter(Order != "Ostreoida", Kingdom != "Spike")
+nonOyster <- nonOyster %>%
+  left_join(oysterSummary, by = "Sample0", suffix = c("Bact", "Oyster"))
+nonOyster <- nonOyster %>%
+  mutate(ratio = count/OysterCount)
+```
+
+How many bacteria vs oysters
+
+```{r}
+Bact2Oyster <- nonOyster %>% 
+  group_by(Sample0) %>%
+  filter(Kingdom == "Bacteria") %>%
+  summarise(B2O = sum(ratio))
+```
+
+```{r}
+Bact2Oyster %>%
+  ggplot(aes(x = Sample0, y = log10(B2O))) + geom_point() + geom_hline(yintercept = 1) +
+     lims(y = c(-3, 4)) + theme_bw() + theme(axis.text.x = element_text(angle = 90))
+```
+The good news is that these ratios, while they vary, never drop below 1/1000
+

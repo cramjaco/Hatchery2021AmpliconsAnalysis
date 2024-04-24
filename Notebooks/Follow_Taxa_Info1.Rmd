@@ -1,0 +1,392 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Lets just try to get an idea of what communtiy structure does over time.
+
+```{r}
+source("Initial_Processing.R")
+```
+
+```{r}
+allfasta <- read_lines(here("Hatchery_UVexperiment_All", "asv_Hatchery_UVexperiment_All.fa"))
+```
+
+```{r}
+fastaDf <- allfasta %>% enframe() %>%
+  mutate(ind = rep(c("ASV","seqquence"), length.out = n())) %>%
+  group_by(ind) %>%
+  mutate(id = row_number()) %>%
+  select(-name) %>%
+  pivot_wider(names_from = ind, values_from = value) %>%
+  select(-id) %>%
+  mutate(nASV = parse_number(ASV))
+```
+
+```{r}
+hatch %>% group_taxa(Phylum)
+```
+
+Domain level patterns
+```{r fig.width = 8.5, fig.height = 2.5}
+hatch %>%
+  group_taxa(Kingdom) %>%
+  #keep_common(fraction = .3, minhits = 5) %>%
+  filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 10^-4), shape = Info1, color = Info1, group = `Brood#`)) +
+  geom_point() +
+  #scale_color_manual(values = c("black", "darkblue", "orange", "red")) +
+  scale_color_manual(values = c(Good = "darkblue", Crash ="red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Kingdom, nrow = 1) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S | 18S", "Host 18S"))), color = "Batch\nOutcome", shape = "Batch\nOutcome") + theme_bw(base_size = 14) +
+    theme(legend.position = "right",
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+Whats with the time-points with two things
+```{r}
+hatch %>%
+   group_taxa(Kingdom) %>%
+   #keep_common(fraction = .3, minhits = 5) %>%
+   filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+   mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+   mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash")))  %>%
+   filter(Kingdom == "Bacteria") -> bh
+
+bh %>% group_by(`Brood#`, DayN, Info1) %>% summarise(n = n()) %>% arrange(-n) %>% filter(n > 1) %>% arrange(DayN) -> bhs
+bhs
+```
+Several taxa have multiple occurances
+21-56 (day 7) -- tube 187 is actually from 21-54 (not part of this analysis)
+21-58 (day 8) -- 213 Should be 11 days, not 8
+21-57 (day 10) -- Tank 8 (219 should be 14 (not 10) days)
+21-11 (day 17) -- (Tube H57 is bottom of tank and the other is normal screen larvae)
+
+To do: remove tubes 187 and 057
+Change DayN of 219 and 213 up front.
+
+
+Eukayrotic Phyla that sow up with at least 3 reads in at least 30% of samples. 
+```{r fig.height = 4, fig.width = 6}
+hatch %>%
+  group_taxa(Phylum) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  filter(Kingdom == "Eukaryota") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() +
+  #scale_color_manual(values = c("black", "darkblue", "orange", "grey", "red")) +
+  scale_color_manual(values = c(Good = "darkblue", Crash ="red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Phylum) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 18S", "Host 18S"))), color = "Batch Outcome", shape = "Batch Outcome") +
+  theme_bw() +
+  theme(legend.position = c(0.5, 0.15),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+
+
+
+
+Now we are looking at all of the common species of eukaryotes
+(old color scheme only)
+```{r fig.height = 3, fig.width = 8}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  filter(Kingdom == "Eukaryota") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) -> EukASV
+EukASV %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + 
+  scale_color_manual(values = c("darkblue", "red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV, nrow = 2) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 18S", "Host 18S"))), color = "Batch Outcome", shape = "Batch Outcome") +
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.box.background = element_rect(linewidth = 1),
+        axis.text.x = element_text(angle = 90))
+```
+```{r}
+EukASV$Tag %>% unique()
+```
+
+```{r}
+Search_these_Euks <- EukASV$nASV %>% unique()
+
+tax %>%
+  filter(nASV %in% (Search_these_Euks)) %>%
+  select(nASV, TagLevel, Tag)
+
+eucSeqDf <- fastaDf %>% 
+  filter(nASV %in% (Search_these_Euks))
+
+euc_fasta <- c(rbind(eucSeqDf$ASV, eucSeqDf$seqquence))
+write(euc_fasta, here("IntermediateData","CommonEukASVs.fa"))
+```
+
+There seem to be more than one measurment per day for the "poor"? Is that UV treatment?
+Again, what are the charcoal and unknown.
+
+## Bacteria
+Abundance of common bacterial phyla
+
+```{r fig.height = 4, fig.width = 8}
+hatch %>%
+  group_taxa(Phylum) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Unknown = "Poor")) %>%
+  
+  filter(Kingdom == "Bacteria") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "NoSurvivors"))) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) +
+  geom_point(size = 2) + scale_color_manual(values = c("darkblue", "red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) +
+  facet_wrap(~Phylum) +
+  labs(x = "Larval Age (Days)",y = expression(log[10](frac("Microbe 16S", "Host 18S"))), color = "Batch Outcome", shape = "Batch Outcome") +
+  theme_bw() +
+  theme(legend.position = c(0.875, 0.135),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+Common Bacteriodetes ASVs
+```{r fig.height = 4, fig.width = 8}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Phylum == "Bacteroidetes") %>% 
+  filter(Family != "Mitochondria") %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) -> CommonBacteroidetes
+
+CommonBacteroidetes %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + scale_color_manual(name = "Batch Outcome", values = c("darkblue", "red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S", "Host 18S"))), shape = "Batch Outcome") + theme_bw() +
+  theme(legend.position = c(0.85, 0.2),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+```{r}
+Search_these_Bdd <- CommonBacteroidetes$nASV %>% unique()
+
+tax %>%
+  filter(nASV %in% (Search_these_Bdd)) %>%
+  select(nASV, TagLevel, Tag)
+
+bddSeqDf <- fastaDf %>% 
+  filter(nASV %in% (Search_these_Bdd))
+
+bdd_fasta <- c(rbind(bddSeqDf$ASV, bddSeqDf$seqquence))
+write(bdd_fasta, here("IntermediateData","CommonBacteroidetesASVs.fa"))
+```
+
+Common Gammaproteobacterial, As Vs
+
+```{r fig.height = 3.5, fig.width = 8}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .3, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  filter(Class == "Gammaproteobacteria") %>% 
+  filter(Family != "Mitochondria") -> Gpr
+
+Gpr %>%
+  #mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("darkblue", "red")) + geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~ Tag_ASV, scales = "free_y", nrow = 2) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S", "Host 18S"))), color = "Batch Outcome", shape = "Batch Outcome") + theme_bw() +
+  theme(legend.position = c(0.9, 0.2),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+Return names for searching
+```{r}
+Gpr$Tag %>% unique()
+```
+
+
+
+```{r}
+Search_these_gammas <- Gpr$nASV %>% unique()
+
+tax %>%
+  filter(nASV %in% (Search_these_gammas)) %>%
+  select(nASV, TagLevel, Tag)
+
+gammaSeqDf <- fastaDf %>% 
+  filter(nASV %in% (Search_these_gammas))
+
+gamma_fasta <- c(rbind(gammaSeqDf$ASV, gammaSeqDf$seqquence))
+write(gamma_fasta, here("IntermediateData","CommonGammaASVs.fa"))
+```
+
+
+The common cyanobacterial ASVs are all chloroplasts.
+I should maybe remove those.
+
+
+Are there vibrio?
+
+```{r fig.height= 6, fig.width = 8}
+hvib <- hatch %>%
+  filter(Genus == "Vibrio")
+
+Present_vibreos <- hvib %>% group_by(Tag_ASV) %>% summarise(totrat = sum(ratio)) %>% filter(totrat > 0) %>% pull(Tag_ASV)
+hvib <- hvib %>% filter(Tag_ASV %in% Present_vibreos)
+
+hvib %>%
+  mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("darkblue", "red")) + geom_path() +
+  scale_x_continuous(breaks = seq(from = 1, to = 20, by = 3)) + facet_wrap(~Tag_ASV, scales = "free_y") +
+   labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S", "Host 18S"))), shape = "Batch Outcome", color = "Batch Outcome") + theme_bw() +
+  theme(legend.position = c(0.5, 0.1),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+I kind of want "examples". 
+Maybe two eukaryotes, three bacteria and a legend.
+
+Pull vibreo sequences
+
+
+
+```{r}
+Present_vibreos %>% parse_number()
+vibSeqDf <- fastaDf %>% 
+  filter(nASV %in% (Present_vibreos %>% parse_number()))
+```
+
+```{r}
+vib_fasta <- c(rbind(vibSeqDf$ASV, vibSeqDf$seqquence))
+write(vib_fasta, here("IntermediateData","vibrios.fa"))
+```
+
+
+Let me just plot three exemplars
+Vibrio 1098
+Flavobacteracae 27
+Carchislum 19
+
+
+
+
+## Blasting the vibrios
+I blasted the vibrio fasta file on ncbi and then parsed the species names out of the text file output.
+
+```{r}
+source(here("RScripts", "Parse_NCBI_Vibrio.R"))
+```
+
+```{r fig.width = 10, fig.height = 8}
+
+hvibS <- hvib %>%
+  left_join(vibrio_species_tags, by = "ASV")
+
+vplt <- hvibS %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + scale_color_manual(values = c("darkblue", "red")) + geom_path() +
+  scale_x_continuous(breaks = seq(from = 1, to = 20, by = 3)) + facet_wrap(~Tag_species, scales = "free_y", labeller = label_wrap_gen()) +
+   labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S", "Host 18S"))), shape = "Batch Outcome", color = "Batch Outcome") + theme_bw() +
+  theme(legend.position = c(0.35, 0.1),
+        legend.box.background = element_rect(linewidth = 1))
+vplt
+```
+
+
+# Combined figure for proposal
+```{r fig.width = 3, fig.height = 5}
+
+sg_follow_plot <- hatch %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  #keep_common(fraction = .3, minhits = 5) %>%
+  filter(nASV  %in% c(19, 37, 1098)) %>%
+  group_by(Tag_ASV, DayN, Info1, `Brood#`) %>%
+  summarise(ratio = mean(ratio), .groups = "keep") %>%
+  arrange(as.numeric(DayN)) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() +      scale_color_manual(values = c( "darkblue", "red")) +
+  scale_shape_manual(values = c(1, 4)) +
+  geom_path() +
+  scale_x_continuous(breaks = seq(from = 0, to = 27, by = 3), minor_breaks = 1:27) + facet_wrap(~Tag_ASV, ncol = 1, scales = "free_y") +
+  labs(x = "Larval Age (Days)", color = "Batch Outcome", shape = "Batch Outcome", y = expression(log[10](frac('Microbe 16s or 18s Genes','Host 18s Genes') + frac(1,1000)))) + theme_bw(base_family = 12) +
+  theme(legend.position = c(0.76, 0.9), legend.title = element_text(size = 9), legend.box.background = element_rect(colour = "black"), axis.title.x = element_text(size = 9))
+ggsave(here("Figures", "SG_Follow_Exemplars.png"), width = 3, height = 5, plot = sg_follow_plot)
+sg_follow_plot
+```
+
+# Pirellulaceae;205
+Is statistically associated with crashes at time point 3-5.
+
+```{r fig.height = 4, fig.width = 8}
+hatch %>%
+  filter(Tag_ASV == "Pirellulaceae;205") %>% 
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + scale_color_manual(name = "Batch Outcome", values = c("darkblue", "red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S", "Host 18S"))), shape = "Batch Outcome") + theme_bw() +
+  theme(legend.position = c(0.85, 0.2),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+```{r}
+print(fastaDf[205,2][[1]])
+```
+
+Dinophyceae Class
+```{r fig.height = 4, fig.width = 8}
+hatch %>%
+  #group_taxa(Tag_ASV) %>%
+  keep_common(fraction = .05, minhits = 5) %>%
+  #filter(!Info2 %in% c("Charcoal", "Unknown")) %>%
+  mutate(Info2 = recode(Info2, Charcoal = "Unknown")) %>%
+  filter(Class == "Dinophyceae") %>% 
+  #mutate(Info2 = forcats::fct_relevel(Info2, c("Best", "Ok", "Poor", "Unknown", "NoSurvivors"))) %>%
+  mutate(Info1 = forcats::fct_relevel(Info1, c("Good", "Crash"))) -> DinophyceaeData
+
+DinophyceaeData %>%
+  ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) + geom_point() + scale_color_manual(name = "Batch Outcome", values = c("darkblue", "red")) +
+  geom_path() +
+  scale_x_continuous(breaks = c(seq(from = 3, to = 21, by = 2))) + facet_wrap(~Tag_ASV) +
+  labs(x = "Larval Age (Days)", y = expression(log[10](frac("Microbe 16S", "Host 18S"))), shape = "Batch Outcome") + theme_bw() +
+  theme(legend.position = c(0.85, 0.3),
+        legend.box.background = element_rect(linewidth = 1))
+```
+
+
+```{r}
+print(fastaDf[189,2][[1]])
+```
+
+Make fasta file
+
+```{r}
+Search_these_Dinophyceae <- DinophyceaeData$nASV %>% unique()
+
+
+dinSeqDf <- fastaDf %>% 
+  filter(nASV %in% (Search_these_Dinophyceae))
+
+din_fasta <- c(rbind(dinSeqDf$ASV, dinSeqDf$seqquence))
+write(din_fasta, here("IntermediateData","Dynophyceae.fa"))
+```
