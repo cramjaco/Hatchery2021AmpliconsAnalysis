@@ -7,7 +7,8 @@ Now that I'm back to thinking family patterns relate to crashes, I'd like to ide
 
 Lasso didn't work, probably because we are under sampled. I think I'll try t-tests
 
-First run SecondPassCore.Rmd
+First run ThirdPassCore.Rmd
+Then Run Follow_Taxa_Info1.Rmd
 ```{r}
 library(infer) # tidy t-test
 library(qvalue)
@@ -144,7 +145,7 @@ ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color
 ```
 
 ```{r fig.height = 2.25, fig.width = 7}
-All_3_5_Df %>%
+plot_All_35 <- All_3_5_Df %>%
   filter(ID != "Dinoflagellata") %>%
 ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color = Info1, group = `Brood#`)) +
   geom_point(size = 2) + scale_color_manual(values = c("darkblue", "red")) +
@@ -154,9 +155,24 @@ ggplot(aes(x = as.numeric(DayN), y = log10(ratio + 1/1000), shape = Info1, color
   labs(x = "Larval Age (Days)",y = expression(log[10](frac("Microbe 16S", "Host 18S"))), color = "Batch Outcome", shape = "Batch Outcome") +
 
   theme_bw() +
-  theme(legend.position = c(0.875, 0.7),
-        legend.box.background = element_rect(linewidth = 1))
+  theme(legend.position = c(0.9, 0.6),
+        legend.box.background = element_rect(linewidth = .4),
+        legend.box.margin = margin(1,7,1,1))
+plot_All_35
 ```
+
+## As above but including Dinophyceae
+
+```{r}
+plot_harbingers <- plot_grid(
+  plot_All_35,
+  plot_Dinophyceae, 
+  ncol = 1,
+  rel_heights = c(1.25,2)
+)
+ggsave(here("Figures", "Fig5_Harbingers.jpg"),plot = plot_harbingers, width = 8, height = 6)
+```
+
 
 ## Nice looking table of statisticlly significant hits
 

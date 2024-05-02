@@ -246,12 +246,14 @@ totPlotSG <- survivorship_df_02 %>%
 totPlotSG
 
 ggsave(here("Figures", "2021AmpliconSurvival.png"), totPlotSG, width = 7, height = 4)
+ggsave(here("Figures", "Fig1_2021AmpliconSurvival.jpg"), totPlotSG, width = 7, height = 4)
 
 ## As above but log transfomed
 totPlotSG_log <- totPlotSG +
   scale_y_log10() +
   theme(legend.position = c(.85, .25))
 ggsave(here("Figures", "2021AmpliconSurvival_log10.png"), totPlotSG_log, width = 7, height = 4)
+ggsave(here("Figures", "Fig1_2021AmpliconSurvival_log10.jpeg"), totPlotSG_log, width = 7, height = 4)
 
 harvested <- survivorship_df_02 %>%
   filter(!is.na(surviving)) %>%

@@ -110,7 +110,7 @@ plt2
 
 
 ```{r}
-ggsave(here("Figures", "CCA_Days3-12.png"), plot = plt2, height = 4, width = 6)
+ggsave(here("Figures", "CCA_Days3-12.png"), plot = plt2, height = 4, width = 8)
 ```
 
 
@@ -324,6 +324,7 @@ anova(second_cca, by = "margin", permutations = 9999)
 
 Interaction test
 ```{r}
+minrat <- min(ratioDf_limited[ratioDf_limited>0])
 second_rda_ix <- rda(log(ratioDf_limited + minrat) ~ DayN * Info1, data = metadata_limited)
 anova(second_rda_ix, by = "margin", permutations = 99999)
 ```
@@ -393,7 +394,8 @@ pre_prop_fig1
 ```
 
 ```{r}
-ggsave(here("Figures", "Pre_Prop_Fig1.png"), pre_prop_fig1, height = 5, width = 6)
+ggsave(here("Figures", "Pre_Prop_Fig1.png"), pre_prop_fig1, height = 5, width = 8)
+ggsave(here("Figures", "Fig2_FamilyLevelCCA.jpeg"), pre_prop_fig1, height = 5, width = 8)
 ```
 
 
