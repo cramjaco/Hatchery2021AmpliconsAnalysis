@@ -1,5 +1,6 @@
-source("Load_In_Drain_Logs.R")
-source("Drain_Log_Library.R")
+library(here)
+source(here("RScripts", "Load_In_Drain_Logs.R"))
+source(here("RScripts", "Drain_Log_Library.R"))
 
 library(ggrepel)
 
@@ -114,7 +115,7 @@ frac_survive_plot <- survivorship_df_01_woutcomes %>%
   geom_path(alpha = 0.5) +
   #geom_text_repel(aes(label = brood), nudge_x = 1, na.rm = TRUE, color = "navy", data = data_ends) +
   #xlim(0, 12) +
-  labs(x = "Age (Days)", y = "Incubating + Planted Larvae", color = "Batch Outcome") +
+  labs(x = "Age (Days)", y = "Incubating + Harvested Larvae", color = "Batch Outcome") +
   scale_color_manual(values = c(Good = "darkblue", Crash = "red")) + 
   scale_shape_manual(name = "Batch Outcome", values = c(1,4)) + 
   theme_bw()
@@ -131,7 +132,7 @@ tot_survive_plot<- survivorship_df_01_woutcomes %>%
   geom_point(aes(), na.rm = TRUE, data = data_ends, size = 3) +
   geom_hline(yintercept = 10, color = "brown", linetype = "dashed", stroke = 2) + 
   #geom_text_repel(aes(label = brood), nudge_x = 1, na.rm = TRUE, color = "navy", data = data_ends) +
-  labs(x = "Age (Days)", y = "Incubating + Planted Larvae \n (millions)") +
+  labs(x = "Age (Days)", y = "Incubating + Harvested Larvae \n (millions)") +
   scale_x_continuous(breaks = seq(from = 0, to = 35, by = 3)) + 
   scale_y_continuous(breaks = seq(from = 0, to = 1800, by = 200)) +
   scale_color_manual(name = "Batch Outcome", values = c(Good = "darkblue", Crash = "red")) + 
@@ -191,7 +192,7 @@ fracPlot <- survivorship_df_02 %>%
   #scale_color_manual(values = c("black", "blue", "goldenrod", "red")) +
   scale_color_manual(values = c(Good = "darkblue", Crash = "red")) + 
   scale_y_continuous(labels = scales::percent) +
-  labs(x = "Age (Days)", y = "Fraction Incubating + Planted") +
+  labs(x = "Age (Days)", y = "Fraction Incubating + Harvested") +
   #xlim(0, 12) +
   theme_bw(base_size = 14)
 
@@ -205,7 +206,7 @@ totPlot <- survivorship_df_02 %>%
   #scale_color_manual(name = "Run Outcome",values = c("black", "blue", "goldenrod", "red")) +
   scale_color_manual(values = c(Good = "darkblue", Crash = "red")) + 
   scale_y_continuous() +
-  labs(x = "Age (Days)", y = "Incubating + Planted Larvae") +
+  labs(x = "Age (Days)", y = "Incubating + Harvested Larvae") +
   #xlim(0, 12) +
   theme_bw(base_size = 14)
 totPlot
@@ -236,7 +237,7 @@ totPlotSG <- survivorship_df_02 %>%
   scale_color_manual(name = "Batch Outcome", values = c(Good = "darkblue", Crash = "red")) + 
   scale_shape_manual(name = "Batch Outcome", values = c(1,4)) + 
   scale_x_continuous(breaks = seq(from = 0, to = 27, by = 3)) +
-  labs(x = "Age (Days)", y = "Incubating + Planted Larvae \n (millions)") +
+  labs(x = "Age (Days)", y = "Incubating + Harvested Larvae \n (millions)") +
   #xlim(0, 12) +
   theme_bw(base_size = 14) +
   theme(legend.position = c(.85, 0.5),
@@ -252,7 +253,7 @@ totPlotSG_log <- totPlotSG +
   theme(legend.position = c(.85, .25))
 ggsave(here("Figures", "2021AmpliconSurvival_log10.png"), totPlotSG_log, width = 7, height = 4)
 
-planted <- survivorship_df_02 %>%
+harvested <- survivorship_df_02 %>%
   filter(!is.na(surviving)) %>%
   filter(!is.na(Info2) & Info2 != "Main") %>%
   mutate(Info2 = factor(Info2, levels = c("Best", "Ok", "Poor", "NoSurvivors"))) %>% 
@@ -264,10 +265,10 @@ planted <- survivorship_df_02 %>%
   scale_color_manual(values = c(Good = "darkblue", Crash = "red")) + 
   scale_x_continuous(breaks = seq(from = 0, to = 20, by = 3)) +
   #scale_y_log10() + 
-  labs(x = "Age (Days)", y = "Planted Larvae") +
+  labs(x = "Age (Days)", y = "Harvested Larvae") +
   #xlim(0, 12) +
   theme_bw(base_size = 14)
-planted
+harvested
 
 
 survivorship_df_01 %>%
